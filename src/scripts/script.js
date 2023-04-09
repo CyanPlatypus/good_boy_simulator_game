@@ -5,8 +5,10 @@ var context;
 
 //var cloud;
 var sceneObjects = [];
+var player;
+var camera;
 
-var delta = 5;
+var delta = 10;
 
 var pressedKeys = {};
 
@@ -18,19 +20,25 @@ function onKeyChange(event, keyPressed){
         return; // Do nothing if event already handled
     }
     
+    var consumed = false;
+
     switch(event.code) {
     case "KeyD":
     case "ArrowRight":
         pressedKeys["r"] = keyPressed;
+        consumed = true;
         break;
     case "KeyA":
     case "ArrowLeft":
         pressedKeys["l"] = keyPressed;
+        consumed = true;
         break;
     }
     
     // Consume the event so it doesn't get handled twice
-    event.preventDefault();
+    if (consumed){
+        event.preventDefault();
+    }
 }
 
 function onKeyDown(event) {
@@ -59,9 +67,9 @@ function onLoad() {
     imgC.src = 'images/forest/sky.png';
     var o = {
         Image : imgC,
-        ParallaxValue: -0.1,
-        X : 0,
-        Y: 0,
+        ParallaxValue: 0.1,
+        localX : 0,
+        localY: 0,
         Z : 0
     }
     sceneObjects.push(o);
@@ -70,9 +78,9 @@ function onLoad() {
     imgC.src = 'images/forest/far_trees.png';
     var o = {
         Image : imgC,
-        ParallaxValue: -0.5,
-        X : 0,
-        Y: 0,
+        ParallaxValue: 0.5,
+        localX : 0,
+        localY: 0,
         Z : 3
     }
     sceneObjects.push(o);
@@ -81,28 +89,31 @@ function onLoad() {
     imgC.src = 'images/forest/road_and_trees.png';
     var o = {
         Image : imgC,
-        ParallaxValue: -1,
-        X : 0,
-        Y: 0,
+        ParallaxValue: 1,
+        localX : 0,
+        localY: 0,
         Z : 9
     }
     sceneObjects.push(o);
 
     imgC = new Image();
     imgC.src = 'images/animated_cloud.gif';
-    var o = {
+    player = {
         Image : imgC,
-        ParallaxValue: 0,
-        X : 250,
-        Y: 370,
+        ParallaxValue: 1,
+        localX : 350,
+        localY: 370,
         Z : 10
     }
-    sceneObjects.push(o);
+    sceneObjects.push(player);
+
+    camera = new Camera(100, 370, width = 700, height = 500);
 
     canvas = document.getElementById('canvas');
     context = canvas.getContext('2d');
 
     //onPlayClick();
+    //todo uncomment below
     canvas.addEventListener('click', onPlayClick);
 
     // var screen = document.querySelector('.screen');
@@ -125,22 +136,44 @@ function updateState() {
         d = -delta;
     }
 
-    sceneObjects.forEach(o => {
-        o.X += d * o.ParallaxValue;
-    });    
+    player.localX += d;
+
+    camera.follow(player);
+
+    // sceneObjects.forEach(o => {
+    //     o.X += d * o.ParallaxValue;
+    // });    
 }
 
 function drawObjects() {
     context.clearRect(0, 0, canvas.width, canvas.height);
 
+    // sceneObjects.forEach(o => {
+    //     context.drawImage(o.Image, o.X, o.Y, o.Image.width, o.Image.height);
+    // });
+
     sceneObjects.forEach(o => {
-        context.drawImage(o.Image, o.X, o.Y, o.Image.width, o.Image.height);
+        context.drawImage(
+            o.Image,
+            //o.localX,
+            (o.localX - (camera.localX - camera.width/2.0)) * (o.ParallaxValue),
+            o.localY,
+            o.Image.width,
+            o.Image.height);
     });
+
+    context.beginPath();
+    // context.rect(
+    //     (camera.localX - camera.width/2.0) - (camera.localX - camera.width/2.0),
+    //     camera.localY  - camera.height/2.0,
+    //     camera.width-10,
+    //     camera.height-10);
+    //     context.stroke();
 }
 
 function onDraw(){
     updateState();
-    drawObjects()
+    drawObjects();
 }
 
 function onPlayClick() {
@@ -148,3 +181,28 @@ function onPlayClick() {
     intervalId = setInterval(onDraw, 30);
 }
 
+// todo camera's XY are centered, but it's not like that or the rest of the objects
+//todo we need to move to centered cooddinates?
+class Camera{
+
+    constructor(localX, localY, width, height){
+        this.localX = localX;
+        this.localY = localY;
+        this.width = width;
+        this.height = height;
+
+        this.deltaX = 0;
+        this.deltaY = 0;
+    }
+
+    follow(objectToFollow){
+        this.deltaX = (objectToFollow.localX - this.localX);// to make is smooth / 10.0;
+        this.deltaY = (objectToFollow.localY - this.localY);// to make it smooth / 10.0;
+
+        this.localX += this.deltaX;
+        this.localY += this.deltaY;
+    }
+
+} 
+
+// issues after adding camera: lower player speed
