@@ -6,7 +6,7 @@ var context;
 //var cloud;
 var sceneObjects = [];
 
-var delta = 5;
+var delta = 8;
 
 var pressedKeys = {};
 
@@ -56,7 +56,8 @@ function onLoad() {
     // screen = document.querySelector('.screen');
 
     var imgC = new Image();
-    imgC.src = 'images/forest/sky.png';
+    //imgC.src = 'images/forest/sky.png';
+    imgC.src = 'images/scene/sky.png';
     var o = {
         Image : imgC,
         ParallaxValue: -0.1,
@@ -67,7 +68,8 @@ function onLoad() {
     sceneObjects.push(o);
 
     imgC = new Image();
-    imgC.src = 'images/forest/far_trees.png';
+    //imgC.src = 'images/forest/far_trees.png';
+    imgC.src = 'images/scene/far_trees.png';
     var o = {
         Image : imgC,
         ParallaxValue: -0.5,
@@ -78,7 +80,8 @@ function onLoad() {
     sceneObjects.push(o);
 
     imgC = new Image();
-    imgC.src = 'images/forest/road_and_trees.png';
+    //imgC.src = 'images/forest/road_and_trees.png';
+    imgC.src = 'images/scene/main_road.png';
     var o = {
         Image : imgC,
         ParallaxValue: -1,
@@ -89,15 +92,16 @@ function onLoad() {
     sceneObjects.push(o);
 
     imgC = new Image();
-    imgC.src = 'images/animated_cloud.gif';
-    var o = {
+
+    imgC.src = 'images/doggo.png';
+    var player = {
         Image : imgC,
         ParallaxValue: 0,
         X : 250,
         Y: 370,
         Z : 10
     }
-    sceneObjects.push(o);
+    sceneObjects.push(player);
 
     canvas = document.getElementById('canvas');
     context = canvas.getContext('2d');
