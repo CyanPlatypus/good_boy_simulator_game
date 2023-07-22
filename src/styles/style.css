@@ -1,14 +1,25 @@
+#body {
+    position: relative;   
+}
+
 #canvas {
+    display: block;
 
     width: 700px;
     height: 500px;
 
     margin: auto;
+
+    top: 0;
+    right: 0;
+    bottom: 0;
+    left: 0;
+
     border: 10px solid pink;
 
     overflow: hidden;
 
-    position: relative;
+    position: absolute;
 
     background: white;
     box-shadow: 0 4px 8px 0 rgba(0,0,0,0.2);
