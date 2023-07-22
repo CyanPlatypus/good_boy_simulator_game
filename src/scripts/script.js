@@ -17,20 +17,26 @@ function onKeyChange(event, keyPressed){
     if (event.defaultPrevented) {
         return; // Do nothing if event already handled
     }
-    
+
+    var consumed = false;
+
     switch(event.code) {
     case "KeyD":
     case "ArrowRight":
         pressedKeys["r"] = keyPressed;
+        consumed = true;
         break;
     case "KeyA":
     case "ArrowLeft":
         pressedKeys["l"] = keyPressed;
+        consumed = true;
         break;
     }
     
     // Consume the event so it doesn't get handled twice
-    event.preventDefault();
+    if (consumed){
+        event.preventDefault();
+    }
 }
 
 function onKeyDown(event) {
