@@ -64,49 +64,48 @@ function onLoad() {
     var imgC = new Image();
     //imgC.src = 'images/forest/sky.png';
     imgC.src = 'images/scene/sky.png';
-    var o = {
-        Image : imgC,
-        ParallaxValue: -0.1,
-        X : 0,
-        Y: 0,
-        Z : 0
-    }
+    var o = new StaticObject(
+        imgC,
+        -0.1,
+        0,
+        0,
+        0
+    );
     sceneObjects.push(o);
 
     imgC = new Image();
     //imgC.src = 'images/forest/far_trees.png';
     imgC.src = 'images/scene/far_trees.png';
-    var o = {
-        Image : imgC,
-        ParallaxValue: -0.5,
-        X : 0,
-        Y: 0,
-        Z : 3
-    }
+    var o = new StaticObject(
+        imgC,
+        -0.5,
+        0,
+        0,
+        3
+    );
     sceneObjects.push(o);
 
     imgC = new Image();
     //imgC.src = 'images/forest/road_and_trees.png';
     imgC.src = 'images/scene/main_road.png';
-    var o = {
-        Image : imgC,
-        ParallaxValue: -1,
-        X : 0,
-        Y: 0,
-        Z : 9
-    }
+    var o = new StaticObject(
+        imgC,
+        -1,
+        0,
+        0,
+        9
+    );
     sceneObjects.push(o);
 
     imgC = new Image();
-
     imgC.src = 'images/doggo.png';
-    var player = {
-        Image : imgC,
-        ParallaxValue: 0,
-        X : 250,
-        Y: 370,
-        Z : 10
-    }
+    var player = new Player(
+        imgC,
+        0, // ParallaxValue
+        250, // x
+        370, // y
+        10 // z
+    );
     sceneObjects.push(player);
 
     canvas = document.getElementById('canvas');
