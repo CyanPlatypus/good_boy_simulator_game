@@ -6,7 +6,7 @@ var context;
 //var cloud;
 var sceneObjects = [];
 
-var delta = 8;
+var delta = 4;
 
 var pressedKeys = {};
 
@@ -155,6 +155,6 @@ function onDraw(){
 
 function onPlayClick() {
     // event.currentTarget.classList.toggle('is-flipped');
-    intervalId = setInterval(onDraw, 30);
+    intervalId = setInterval(onDraw, 15);
 }
 
