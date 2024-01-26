@@ -3,36 +3,21 @@ window.addEventListener("load", onLoad);
 var canvas;
 var context;
 
-//var cloud;
 var sceneObjects = [];
 
 var delta = 4;
 
-var pressedKeys = {};
-
-window.addEventListener("keydown", onKeyDown);
-window.addEventListener("keyup", onKeyUp);
+var keyboardController;
 
 function onKeyChange(event, keyPressed){
+
     if (event.defaultPrevented) {
-        return; // Do nothing if event already handled
+        // Do nothing if event already handled
+        return; 
     }
 
-    var consumed = false;
+    var consumed = keyboardController.consumeKey(event.code, keyPressed);
 
-    switch(event.code) {
-    case "KeyD":
-    case "ArrowRight":
-        pressedKeys["r"] = keyPressed;
-        consumed = true;
-        break;
-    case "KeyA":
-    case "ArrowLeft":
-        pressedKeys["l"] = keyPressed;
-        consumed = true;
-        break;
-    }
-    
     // Consume the event so it doesn't get handled twice
     if (consumed){
         event.preventDefault();
@@ -47,6 +32,7 @@ function onKeyUp(event) {
     onKeyChange(event, false);
 }
 
+
 // window.addEventListener("resize", onResize);
 
 // function onResize(){
@@ -57,7 +43,14 @@ function onKeyUp(event) {
 // 	card.style.width = width + "px";
 // }
 
+
 function onLoad() {
+
+    keyboardController = new KeyboardController();
+
+    window.addEventListener("keydown", onKeyDown);
+    window.addEventListener("keyup", onKeyUp);
+
     // life = document.querySelector('.life');
     // screen = document.querySelector('.screen');
 
@@ -126,11 +119,12 @@ function onLoad() {
 function updateState() {
     var d = 0;
 
-    if(pressedKeys["r"] === true && !pressedKeys["l"] === true){
+    
+    if(keyboardController.isGoRightPressed() === true && !keyboardController.isGoLeftPressed() === true){
         d = delta;
     }
 
-    if(pressedKeys["l"] === true && !pressedKeys["r"] === true){
+    if(keyboardController.isGoLeftPressed() === true && !keyboardController.isGoRightPressed() === true){
         d = -delta;
     }
 
