@@ -91,9 +91,10 @@ function onLoad() {
     sceneObjects.push(o);
 
     imgC = new Image();
-    imgC.src = 'images/doggo.png';
+    imgC.src = 'images/idle_doggo.png';
+    var playerIdleAnimator = new LoopAnimator(imgC, 90, 400);
     var player = new Player(
-        imgC,
+        playerIdleAnimator,
         0, // ParallaxValue
         250, // x
         370, // y
@@ -137,7 +138,36 @@ function drawObjects() {
     context.clearRect(0, 0, canvas.width, canvas.height);
 
     sceneObjects.forEach(o => {
-        context.drawImage(o.Image, o.X, o.Y, o.Image.width, o.Image.height);
+
+        var image;
+
+        var sourceImageX;
+        var sourceImageY;
+
+        var w;
+        var h;
+
+        if(o.Animator !== undefined){
+            o.Animator.PrepareFrame();
+
+            image = o.Animator.Image;
+
+            sourceImageX = o.Animator.SourceImageX;
+            sourceImageY = o.Animator.SourceImageY;
+ 
+            w = o.Animator.Width;
+            h = o.Animator.Height;
+        }
+        else{
+            image = o.Image;
+
+            sourceImageX = 0;
+            sourceImageY = 0;
+
+            w = o.Image.width;
+            h = o.Image.height;
+        }
+        context.drawImage(image, sourceImageX, sourceImageY, w, h, o.X, o.Y, w, h);
     });
 }
 
@@ -148,6 +178,7 @@ function onDraw(){
 
 function onPlayClick() {
     // event.currentTarget.classList.toggle('is-flipped');
+    //let requestId = requestAnimationFrame(callback) // https://javascript.info/js-animation
     intervalId = setInterval(onDraw, 15);
 }
 
