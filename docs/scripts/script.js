@@ -8,6 +8,8 @@ var sceneObjects = [];
 var delta = 4;
 
 var keyboardController;
+var player;
+var camera;
 
 function onKeyChange(event, keyPressed){
 
@@ -59,7 +61,7 @@ function onLoad() {
     imgC.src = 'images/scene/sky.png';
     var o = new StaticObject(
         imgC,
-        -0.1,
+        0.1,
         0,
         0,
         0
@@ -71,7 +73,7 @@ function onLoad() {
     imgC.src = 'images/scene/far_trees.png';
     var o = new StaticObject(
         imgC,
-        -0.5,
+        0.5,
         0,
         0,
         3
@@ -83,7 +85,7 @@ function onLoad() {
     imgC.src = 'images/scene/main_road.png';
     var o = new StaticObject(
         imgC,
-        -1,
+        1,
         0,
         0,
         9
@@ -93,17 +95,19 @@ function onLoad() {
     imgC = new Image();
     imgC.src = 'images/idle_doggo.png';
     var playerIdleAnimator = new LoopAnimator(imgC, 90, 400);
-    var player = new Player(
+    player = new Player(
         playerIdleAnimator,
-        0, // ParallaxValue
+        1, // ParallaxValue
         250, // x
         370, // y
         10 // z
     );
     sceneObjects.push(player);
-
+ 
     canvas = document.getElementById('canvas');
     context = canvas.getContext('2d');
+
+    camera = new Camera(100, 370, canvas.width, canvas.height);
 
     //onPlayClick();
     canvas.addEventListener('click', onPlayClick);
@@ -129,9 +133,13 @@ function updateState() {
         d = -delta;
     }
 
-    sceneObjects.forEach(o => {
-        o.X += d * o.ParallaxValue;
-    });    
+    player.X += d;
+
+    camera.follow(player);
+
+    // sceneObjects.forEach(o => {
+    //     o.X += d * o.ParallaxValue;
+    // });    
 }
 
 function drawObjects() {
@@ -146,6 +154,9 @@ function drawObjects() {
 
         var w;
         var h;
+
+        const x = (o.X - (camera.X - camera.width/2.0)) * (o.ParallaxValue);
+        const y = (o.Y - (camera.Y - camera.height/2.0)) * (o.ParallaxValue);
 
         if(o.Animator !== undefined){
             o.Animator.PrepareFrame();
@@ -167,13 +178,44 @@ function drawObjects() {
             w = o.Image.width;
             h = o.Image.height;
         }
-        context.drawImage(image, sourceImageX, sourceImageY, w, h, o.X, o.Y, w, h);
+        context.drawImage(image, sourceImageX, sourceImageY, w, h, x, y, w, h);
     });
+}
+
+function drawDebug(){
+
+    const xInScene = (camera.X - (camera.X - camera.width/2.0));
+    const yInScene = (camera.Y - (camera.Y - camera.height/2.0));
+
+    drawFilledRectangle(xInScene-2, yInScene-2, 4, 4, "black");
+
+    drawRectangle(
+        xInScene - camera.width/2.0,
+        yInScene  - camera.height/2.0,
+        camera.width,
+        camera.height,
+        "black");
+}
+
+function drawFilledRectangle(x, y, w, h, color) {
+    context.beginPath();
+    context.rect(x, y, w, h);
+    context.fillStyle = color;
+    context.closePath();
+    context.fill();
+}
+function drawRectangle(x, y, w, h, color) {
+    context.beginPath();
+    context.rect(x, y, w, h);
+    context.strokeStyle = color;
+    context.closePath();
+    context.stroke();
 }
 
 function onDraw(){
     updateState();
-    drawObjects()
+    drawObjects();
+    drawDebug();
 }
 
 function onPlayClick() {
@@ -181,4 +223,3 @@ function onPlayClick() {
     //let requestId = requestAnimationFrame(callback) // https://javascript.info/js-animation
     intervalId = setInterval(onDraw, 15);
 }
-
