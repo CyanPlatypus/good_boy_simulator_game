@@ -107,7 +107,8 @@ function onLoad() {
     canvas = document.getElementById('canvas');
     context = canvas.getContext('2d');
 
-    camera = new Camera(100, 370, canvas.width, canvas.height);
+    const worldCollider = new Collider(0, 0, 2750, canvas.height)
+    camera = new Camera(100, 370, canvas.width, canvas.height, worldCollider);
 
     //onPlayClick();
     canvas.addEventListener('click', onPlayClick);
@@ -156,7 +157,7 @@ function drawObjects() {
         var h;
 
         const x = (o.X - (camera.X - camera.width/2.0)) * (o.ParallaxValue);
-        const y = (o.Y - (camera.Y - camera.height/2.0)) * (o.ParallaxValue);
+        const y = (o.Y - (camera.Y - camera.height/2.0));// * (o.ParallaxValue);
 
         if(o.Animator !== undefined){
             o.Animator.PrepareFrame();
