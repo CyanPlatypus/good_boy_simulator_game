@@ -1,7 +1,7 @@
 class KeyboardController {
 
     constructor(){
-        this.PressedKeys = {};
+        this.pressedKeys = {};
     }
 
     consumeKey(keyCode, keyPressed){
@@ -11,12 +11,12 @@ class KeyboardController {
         switch(keyCode) {
         case "KeyD":
         case "ArrowRight":
-            this.PressedKeys["r"] = keyPressed;
+            this.pressedKeys["r"] = keyPressed;
             consumed = true;
             break;
         case "KeyA":
         case "ArrowLeft":
-            this.PressedKeys["l"] = keyPressed;
+            this.pressedKeys["l"] = keyPressed;
             consumed = true;
             break;
         }
@@ -25,10 +25,10 @@ class KeyboardController {
     }
 
     isGoRightPressed(){
-        return this.PressedKeys["r"];
+        return this.pressedKeys["r"];
     }
 
     isGoLeftPressed(){
-        return this.PressedKeys["l"]
+        return this.pressedKeys["l"]
     }
 }

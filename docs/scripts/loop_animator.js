@@ -1,54 +1,54 @@
 class LoopAnimator{
 
-    PrepareFirstFrame(){
-        this.SourceImageX = 0;
-        this.SourceImageY = 0;
+    selectFirstFrame(){
+        this.sourceImageX = 0;
+        this.sourceImageY = 0;
     }
 
-    PrepareNextFrame(){
-        if (this.SourceImageX + this.FrameWidth < this.Image.width){
-            this.SourceImageX += this.FrameWidth;
-            this.SourceImageY = 0;
+    selectNextFrame(){
+        if (this.sourceImageX + this.frameWidth < this.image.width){
+            this.sourceImageX += this.frameWidth;
+            this.sourceImageY = 0;
         }
         else {
-            this.PrepareFirstFrame();
+            this.selectFirstFrame();
         }
     }
 
     constructor(image, frameWidth, msBetweenFrames){
-        this.Image = image;
+        this.image = image;
 
-        this.PrepareFirstFrame();
+        this.selectFirstFrame();
 
-        this.Height = 70;//Tmp until we load images properly. Before they're loaded image.height is 0
-        this.Width = frameWidth;
+        this.height = 70;//Tmp until we load images properly. Before they're loaded image.height is 0
+        this.width = frameWidth;
 
-        this.FrameWidth = frameWidth;
+        this.frameWidth = frameWidth;
 
-        this.StartWithFirstFrame = true;
-        this.PreviousFrameAt = 0;
-        this.MsBetweenFrames = msBetweenFrames;
+        this.startWithFirstFrame = true;
+        this.previousFrameAt = 0;
+        this.msBetweenFrames = msBetweenFrames;
     }
 
-    PrepareFrame(){
+    prepareFrame(){
 
-        if (this.StartWithFirstFrame){
+        if (this.startWithFirstFrame){
 
-            this.PrepareFirstFrame();
-            this.StartWithFirstFrame = false;
+            this.selectFirstFrame();
+            this.startWithFirstFrame = false;
             
-            this.PreviousFrameAt = performance.now()
+            this.previousFrameAt = performance.now()
             return;
         }
 
         const now = performance.now();
-        const sincePreviousFrame = now - this.PreviousFrameAt;
+        const sincePreviousFrame = now - this.previousFrameAt;
 
         // We assume frames won't be skipped
-        if (sincePreviousFrame >= this.MsBetweenFrames){
+        if (sincePreviousFrame >= this.msBetweenFrames){
 
-            this.PrepareNextFrame();
-            this.PreviousFrameAt = now;
+            this.selectNextFrame();
+            this.previousFrameAt = now;
             return;
         }
     }

@@ -134,7 +134,7 @@ function updateState() {
         d = -delta;
     }
 
-    player.X += d;
+    player.x += d;
 
     camera.follow(player);
 
@@ -156,28 +156,28 @@ function drawObjects() {
         var w;
         var h;
 
-        const x = (o.X - (camera.X - camera.width/2.0)) * (o.ParallaxValue);
-        const y = (o.Y - (camera.Y - camera.height/2.0));// * (o.ParallaxValue);
+        const x = (o.x - (camera.x - camera.width/2.0)) * (o.parallaxValue);
+        const y = (o.y - (camera.y - camera.height/2.0));// * (o.ParallaxValue);
 
-        if(o.Animator !== undefined){
-            o.Animator.PrepareFrame();
+        if(o.animator !== undefined){
+            o.animator.prepareFrame();
 
-            image = o.Animator.Image;
+            image = o.animator.image;
 
-            sourceImageX = o.Animator.SourceImageX;
-            sourceImageY = o.Animator.SourceImageY;
+            sourceImageX = o.animator.sourceImageX;
+            sourceImageY = o.animator.sourceImageY;
  
-            w = o.Animator.Width;
-            h = o.Animator.Height;
+            w = o.animator.width;
+            h = o.animator.height;
         }
         else{
-            image = o.Image;
+            image = o.image;
 
             sourceImageX = 0;
             sourceImageY = 0;
 
-            w = o.Image.width;
-            h = o.Image.height;
+            w = o.image.width;
+            h = o.image.height;
         }
         context.drawImage(image, sourceImageX, sourceImageY, w, h, x, y, w, h);
     });
@@ -185,8 +185,8 @@ function drawObjects() {
 
 function drawDebug(){
 
-    const xInScene = (camera.X - (camera.X - camera.width/2.0));
-    const yInScene = (camera.Y - (camera.Y - camera.height/2.0));
+    const xInScene = (camera.x - (camera.x - camera.width/2.0));
+    const yInScene = (camera.y - (camera.y - camera.height/2.0));
 
     drawFilledRectangle(xInScene-2, yInScene-2, 4, 4, "black");
 

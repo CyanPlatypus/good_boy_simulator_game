@@ -4,10 +4,10 @@ class Player {
         animator,
         parallaxValue,
         x, y, z){
-        this.Animator = animator;
-        this.ParallaxValue = parallaxValue;
-        this.X = x;
-        this.Y = y;
-        this.Z = z;
+        this.animator = animator;
+        this.parallaxValue = parallaxValue;
+        this.x = x;
+        this.y = y;
+        this.z = z;
     }
 }
