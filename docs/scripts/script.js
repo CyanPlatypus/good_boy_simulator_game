@@ -93,14 +93,28 @@ function onLoad() {
     sceneObjects.push(o);
 
     imgC = new Image();
-    imgC.src = 'images/idle_doggo.png';
-    var playerIdleAnimator = new LoopAnimator(imgC, 90, 400);
+    imgC.src = 'images/doggo/idle_right_doggo.png';
+    var playerIdleRightAnimator = new LoopAnimator(imgC, 95, 400);
+    imgC = new Image();
+    imgC.src = 'images/doggo/idle_left_doggo.png';
+    var playerIdleLeftAnimator = new LoopAnimator(imgC, 95, 400);
+    imgC = new Image();
+    imgC.src = 'images/doggo/walk_right_doggo.png';
+    var playerGoRightAnimator = new LoopAnimator(imgC, 95, 200);
+    imgC = new Image();
+    imgC.src = 'images/doggo/walk_left_doggo.png';
+    var playerGoLeftAnimator = new LoopAnimator(imgC, 95, 200);
+
     player = new Player(
-        playerIdleAnimator,
+        playerIdleRightAnimator,
+        playerIdleLeftAnimator,
+        playerGoRightAnimator,
+        playerGoLeftAnimator,
         1, // ParallaxValue
         250, // x
         370, // y
-        10 // z
+        10, // z
+        delta
     );
     sceneObjects.push(player);
  
@@ -123,18 +137,18 @@ function onLoad() {
 }
 
 function updateState() {
-    var d = 0;
+    var input = InputType.No;
 
     
     if(keyboardController.isGoRightPressed() === true && !keyboardController.isGoLeftPressed() === true){
-        d = delta;
+        input = InputType.Right;
     }
 
     if(keyboardController.isGoLeftPressed() === true && !keyboardController.isGoRightPressed() === true){
-        d = -delta;
+        input = InputType.Left;
     }
 
-    player.x += d;
+    player.act(input);//.x += d;
 
     camera.follow(player);
 
