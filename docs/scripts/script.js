@@ -83,12 +83,14 @@ function onLoad() {
     imgC = new Image();
     //imgC.src = 'images/forest/road_and_trees.png';
     imgC.src = 'images/scene/main_road.png';
+    const roadCollider = new Collider(0, 390, 2750, 100);
     var o = new StaticObject(
         imgC,
         1,
         0,
         0,
-        9
+        9,
+        roadCollider
     );
     sceneObjects.push(o);
 
@@ -104,24 +106,34 @@ function onLoad() {
     imgC = new Image();
     imgC.src = 'images/doggo/walk_left_doggo.png';
     var playerGoLeftAnimator = new LoopAnimator(imgC, 95, 200);
+    imgC = new Image();
+    imgC.src = 'images/doggo/doggo.png';
+    var staticDoggo = new LoopAnimator(imgC, 85, 200);
+
+    const playerCollider = new Collider(250, 10, 95, 70);
 
     player = new Player(
         playerIdleRightAnimator,
         playerIdleLeftAnimator,
         playerGoRightAnimator,
         playerGoLeftAnimator,
+        staticDoggo, // tmp, update to fall
+        staticDoggo, // tmp, update to fall
         1, // ParallaxValue
         250, // x
-        370, // y
+        10, // y
         10, // z
-        delta
+        delta,
+        0.3,
+        playerCollider,
+        sceneObjects
     );
     sceneObjects.push(player);
  
     canvas = document.getElementById('canvas');
     context = canvas.getContext('2d');
 
-    const worldCollider = new Collider(0, 0, 2750, canvas.height)
+    const worldCollider = new Collider(0, 0, 2750, canvas.height);
     camera = new Camera(100, 370, canvas.width, canvas.height, worldCollider);
 
     //onPlayClick();
@@ -210,6 +222,12 @@ function drawDebug(){
         camera.width,
         camera.height,
         "black");
+
+    for (const o of sceneObjects){
+        if(o.collider !== undefined){
+            drawRectangle(o.collider.x, o.collider.y, o.collider.width, o.collider.height, "black");
+        }
+    }
 }
 
 function drawFilledRectangle(x, y, w, h, color) {
@@ -219,6 +237,7 @@ function drawFilledRectangle(x, y, w, h, color) {
     context.closePath();
     context.fill();
 }
+
 function drawRectangle(x, y, w, h, color) {
     context.beginPath();
     context.rect(x, y, w, h);

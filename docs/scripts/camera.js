@@ -38,11 +38,11 @@ class Camera{
         const attemptedMaxSide = attemptedCoordinateOfTheCenter + distanceFromCenterToSide;
         
         if(attemptedMinSide < minBorder){
-            return minBorder + 1 + distanceFromCenterToSide;
+            return minBorder + distanceFromCenterToSide;
         }
 
         if(attemptedMaxSide > maxBorder){
-            return maxBorder - 1 - distanceFromCenterToSide;
+            return maxBorder - distanceFromCenterToSide;
         }
 
         return attemptedCoordinateOfTheCenter;
