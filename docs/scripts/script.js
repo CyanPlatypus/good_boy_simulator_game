@@ -107,8 +107,17 @@ function onLoad() {
     imgC.src = 'images/doggo/walk_left_doggo.png';
     var playerGoLeftAnimator = new LoopAnimator(imgC, 95, 200);
     imgC = new Image();
-    imgC.src = 'images/doggo/doggo.png';
-    var staticDoggo = new LoopAnimator(imgC, 85, 200);
+    imgC.src = 'images/doggo/fall_right_doggo.png';
+    var playerFallRight = new LoopAnimator(imgC, 95, 200);
+    imgC = new Image();
+    imgC.src = 'images/doggo/fall_left_doggo.png';
+    var playerFallLeft = new LoopAnimator(imgC, 95, 200);
+    imgC = new Image();
+    imgC.src = 'images/doggo/jump_right_doggo.png';
+    var playerjumpRight = new LoopAnimator(imgC, 95, 200);
+    imgC = new Image();
+    imgC.src = 'images/doggo/jump_left_doggo.png';
+    var playerJumpLeft = new LoopAnimator(imgC, 95, 200);
 
     const playerCollider = new Collider(250, 10, 95, 70);
 
@@ -117,16 +126,20 @@ function onLoad() {
         playerIdleLeftAnimator,
         playerGoRightAnimator,
         playerGoLeftAnimator,
-        staticDoggo, // tmp, update to fall
-        staticDoggo, // tmp, update to fall
+        playerFallRight, // tmp, update to fall
+        playerFallLeft, // tmp, update to fall
+        playerjumpRight, // tmp, update to jump
+        playerJumpLeft, // tmp, update to jump
         1, // ParallaxValue
         250, // x
         10, // y
         10, // z
         delta,
         0.3,
+        8,
         playerCollider,
-        sceneObjects
+        sceneObjects,
+        keyboardController
     );
     sceneObjects.push(player);
  
@@ -149,24 +162,8 @@ function onLoad() {
 }
 
 function updateState() {
-    var input = InputType.No;
-
-    
-    if(keyboardController.isGoRightPressed() === true && !keyboardController.isGoLeftPressed() === true){
-        input = InputType.Right;
-    }
-
-    if(keyboardController.isGoLeftPressed() === true && !keyboardController.isGoRightPressed() === true){
-        input = InputType.Left;
-    }
-
-    player.act(input);//.x += d;
-
+    player.act();
     camera.follow(player);
-
-    // sceneObjects.forEach(o => {
-    //     o.X += d * o.ParallaxValue;
-    // });    
 }
 
 function drawObjects() {
@@ -225,7 +222,9 @@ function drawDebug(){
 
     for (const o of sceneObjects){
         if(o.collider !== undefined){
-            drawRectangle(o.collider.x, o.collider.y, o.collider.width, o.collider.height, "black");
+            const x = (o.collider.x - (camera.x - camera.width/2.0)) * (o.parallaxValue);
+            const y = (o.collider.y - (camera.y - camera.height/2.0));
+            drawRectangle(x, y, o.collider.width, o.collider.height, "black");
         }
     }
 }

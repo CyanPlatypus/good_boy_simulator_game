@@ -7,18 +7,24 @@ class Player {
         goLeftAnimator,
         fallRightAnimator,
         fallLeftAnimator,
+        jumpRightAnimator,
+        jumpLeftAnimator,
         parallaxValue,
         x, y, z,
         speed,
         fallAcceleration,
+        jumpAcceleration,
         collider,
-        sceneObjects){
+        sceneObjects,
+        inputController){
         this.idleRightAnimator = idleRightAnimator;
         this.idleLeftAnimator = idleLeftAnimator;
         this.goRightAnimator = goRightAnimator;
         this.goLeftAnimator = goLeftAnimator;
         this.fallRightAnimator = fallRightAnimator;
         this.fallLeftAnimator = fallLeftAnimator;
+        this.jumpRightAnimator = jumpRightAnimator;
+        this.jumpLeftAnimator = jumpLeftAnimator;
         this.animator = this.idleRightAnimator;
 
         this.parallaxValue = parallaxValue;
@@ -27,18 +33,21 @@ class Player {
         this.z = z;
         this.speed = speed;
         this.fallAcceleration = fallAcceleration;
+        this.jumpAcceleration = jumpAcceleration;
         this.velocityX = 0;
         this.velocityY = 0;
         this.collider = collider;
 
         this.objectColliders = sceneObjects.filter(o => o.collider !== undefined).map(o => o.collider);
 
+        this.inputController = inputController;
+
         this.state = PlayerStateType.Idle;
         this.faceDirection = PlayerFaceDirectionType.Right;
     }
 
-    act(input){
-        let [attemptedDeltaX, attemptedDeltaY] = this.getInputVelocity(input);
+    act(){
+        let [attemptedDeltaX, attemptedDeltaY] = this.getInputVelocity();
         [attemptedDeltaX, attemptedDeltaY] = this.addGravityVelocity(attemptedDeltaX, attemptedDeltaY);
         [this.velocityX, this.velocityY] = this.getAllowedVelocity(attemptedDeltaX, attemptedDeltaY);
 
@@ -78,6 +87,10 @@ class Player {
             this.animator = this.faceDirection === PlayerFaceDirectionType.Right
                 ? this.fallRightAnimator : this.fallLeftAnimator; 
         }
+        else if(this.state === PlayerStateType.Jump){
+            this.animator = this.faceDirection === PlayerFaceDirectionType.Right
+                ? this.jumpRightAnimator : this.jumpLeftAnimator; 
+        }
         else if (this.state === PlayerStateType.Walk){
             this.animator = this.faceDirection === PlayerFaceDirectionType.Right
             ? this.goRightAnimator : this.goLeftAnimator; 
@@ -111,16 +124,25 @@ class Player {
         return [0, 0];
     }
 
-    getInputVelocity(input){
-        if(input === InputType.Right){
-            return [this.speed, this.velocityY];
+    getInputVelocity(){
+        // We keep velocityY for jumping
+        let [attemptedVelocityX, attemptedVelocityY] = [0, this.velocityY];
+
+        if(keyboardController.isGoRightPressed() === true){
+            attemptedVelocityX += this.speed;
+        }
+    
+        if(keyboardController.isGoLeftPressed() === true){
+            attemptedVelocityX -= this.speed;
+        }
+    
+        if(keyboardController.isJumpPressed() === true
+            && this.state !== PlayerStateType.Jump
+            && this.state !== PlayerStateType.Fall){
+            attemptedVelocityY -= this.jumpAcceleration;
         }
 
-        if(input === InputType.Left){
-            return [-this.speed, this.velocityY];
-        }
-
-        return [0, this.velocityY];
+        return [attemptedVelocityX, attemptedVelocityY];
     }
 
     addGravityVelocity(attemptedVelocityX, attemptedVelocityY){

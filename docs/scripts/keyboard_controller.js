@@ -19,6 +19,11 @@ class KeyboardController {
             this.pressedKeys["l"] = keyPressed;
             consumed = true;
             break;
+        case "KeyW":
+        case "ArrowUp":
+            this.pressedKeys["j"] = keyPressed;
+            consumed = true;
+            break;
         }
         
         return consumed;
@@ -30,5 +35,9 @@ class KeyboardController {
 
     isGoLeftPressed(){
         return this.pressedKeys["l"]
+    }
+
+    isJumpPressed(){
+        return this.pressedKeys["j"];
     }
 }
