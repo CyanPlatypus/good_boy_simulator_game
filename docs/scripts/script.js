@@ -273,7 +273,7 @@ function drawRectangle(x, y, w, h, color) {
 function onDraw(){
     updateState();
     drawObjects();
-    drawDebug();
+    //drawDebug();
 }
 
 function onPlayClick() {
