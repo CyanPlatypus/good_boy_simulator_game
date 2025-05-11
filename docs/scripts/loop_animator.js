@@ -20,7 +20,8 @@ class LoopAnimator{
 
         this.selectFirstFrame();
 
-        this.height = 70;//Tmp until we load images properly. Before they're loaded image.height is 0
+        // todo pass image info and scale. image.height isn't enough. image.height * imageScale 
+        this.height = 28;//Tmp until we load images properly. Before they're loaded image.height is 0
         this.width = frameWidth;
 
         this.frameWidth = frameWidth;

@@ -5,7 +5,8 @@ var context;
 
 var sceneObjects = [];
 
-var delta = 4;
+var delta = 3;
+const imageScale = 2;
 
 var keyboardController;
 var player;
@@ -52,13 +53,20 @@ function onLoad() {
 
     window.addEventListener("keydown", onKeyDown);
     window.addEventListener("keyup", onKeyUp);
-
-    // life = document.querySelector('.life');
-    // screen = document.querySelector('.screen');
+ 
+    var imgC = new Image();
+    imgC.src = 'images/scene/sky.png';
+    var o = new StaticObject(
+        imgC,
+        0,
+        0,
+        0,
+        0
+    );
+    sceneObjects.push(o);
 
     var imgC = new Image();
-    //imgC.src = 'images/forest/sky.png';
-    imgC.src = 'images/scene/sky.png';
+    imgC.src = 'images/scene/back_cloud.png';
     var o = new StaticObject(
         imgC,
         0.1,
@@ -69,11 +77,21 @@ function onLoad() {
     sceneObjects.push(o);
 
     imgC = new Image();
-    //imgC.src = 'images/forest/far_trees.png';
-    imgC.src = 'images/scene/far_trees.png';
+    imgC.src = 'images/scene/front_cloud.png';
     var o = new StaticObject(
         imgC,
-        0.5,
+        0.2,
+        0,
+        0,
+        0
+    );
+    sceneObjects.push(o);
+
+    imgC = new Image();
+    imgC.src = 'images/scene/wheel.png';
+    var o = new StaticObject(
+        imgC,
+        0.9,
         0,
         0,
         3
@@ -81,9 +99,8 @@ function onLoad() {
     sceneObjects.push(o);
 
     imgC = new Image();
-    //imgC.src = 'images/forest/road_and_trees.png';
-    imgC.src = 'images/scene/main_road.png';
-    const roadCollider = new Collider(0, 390, 2750, 100);
+    imgC.src = 'images/scene/pier.png';
+    const roadCollider = new Collider(0, 297, 1700, 100);
     var o = new StaticObject(
         imgC,
         1,
@@ -95,31 +112,42 @@ function onLoad() {
     sceneObjects.push(o);
 
     imgC = new Image();
+    imgC.src = 'images/scene/foreground_grass.png';
+    var o = new StaticObject(
+        imgC,
+        1.3,
+        0,
+        0,
+        3
+    );
+    sceneObjects.push(o);
+
+    imgC = new Image();
     imgC.src = 'images/doggo/idle_right_doggo.png';
-    var playerIdleRightAnimator = new LoopAnimator(imgC, 95, 400);
+    var playerIdleRightAnimator = new LoopAnimator(imgC, 19, 400);
     imgC = new Image();
     imgC.src = 'images/doggo/idle_left_doggo.png';
-    var playerIdleLeftAnimator = new LoopAnimator(imgC, 95, 400);
+    var playerIdleLeftAnimator = new LoopAnimator(imgC, 19, 400);
     imgC = new Image();
     imgC.src = 'images/doggo/walk_right_doggo.png';
-    var playerGoRightAnimator = new LoopAnimator(imgC, 95, 200);
+    var playerGoRightAnimator = new LoopAnimator(imgC, 19, 200);
     imgC = new Image();
     imgC.src = 'images/doggo/walk_left_doggo.png';
-    var playerGoLeftAnimator = new LoopAnimator(imgC, 95, 200);
+    var playerGoLeftAnimator = new LoopAnimator(imgC, 19, 200);
     imgC = new Image();
     imgC.src = 'images/doggo/fall_right_doggo.png';
-    var playerFallRight = new LoopAnimator(imgC, 95, 200);
+    var playerFallRight = new LoopAnimator(imgC, 19, 200);
     imgC = new Image();
     imgC.src = 'images/doggo/fall_left_doggo.png';
-    var playerFallLeft = new LoopAnimator(imgC, 95, 200);
+    var playerFallLeft = new LoopAnimator(imgC, 19, 200);
     imgC = new Image();
     imgC.src = 'images/doggo/jump_right_doggo.png';
-    var playerjumpRight = new LoopAnimator(imgC, 95, 200);
+    var playerjumpRight = new LoopAnimator(imgC, 19, 200);
     imgC = new Image();
     imgC.src = 'images/doggo/jump_left_doggo.png';
-    var playerJumpLeft = new LoopAnimator(imgC, 95, 200);
+    var playerJumpLeft = new LoopAnimator(imgC, 19, 200);
 
-    const playerCollider = new Collider(250, 10, 95, 70);
+    const playerCollider = new Collider(250, 10, 19 * imageScale, 14 * imageScale);
 
     player = new Player(
         playerIdleRightAnimator,
@@ -145,20 +173,13 @@ function onLoad() {
  
     canvas = document.getElementById('canvas');
     context = canvas.getContext('2d');
+    context.imageSmoothingEnabled = false;
 
-    const worldCollider = new Collider(0, 0, 2750, canvas.height);
+    const worldCollider = new Collider(0, 0, 2000, canvas.height);
     camera = new Camera(100, 370, canvas.width, canvas.height, worldCollider);
 
     //onPlayClick();
     canvas.addEventListener('click', onPlayClick);
-
-    // var screen = document.querySelector('.screen');
-    // var life = document.querySelector('.life');
-    // screen.scrollTop = screen.scrollHeight;
-
-	// card.addEventListener('click', onCardClick);
-    // onResize();
-    
 }
 
 function updateState() {
@@ -176,8 +197,8 @@ function drawObjects() {
         var sourceImageX;
         var sourceImageY;
 
-        var w;
-        var h;
+        var sourceW;
+        var sourceH;
 
         const x = (o.x - (camera.x - camera.width/2.0)) * (o.parallaxValue);
         const y = (o.y - (camera.y - camera.height/2.0));// * (o.ParallaxValue);
@@ -190,8 +211,8 @@ function drawObjects() {
             sourceImageX = o.animator.sourceImageX;
             sourceImageY = o.animator.sourceImageY;
  
-            w = o.animator.width;
-            h = o.animator.height;
+            sourceW = o.animator.width;
+            sourceH = o.animator.height;
         }
         else{
             image = o.image;
@@ -199,10 +220,14 @@ function drawObjects() {
             sourceImageX = 0;
             sourceImageY = 0;
 
-            w = o.image.width;
-            h = o.image.height;
+            sourceW = o.image.width;
+            sourceH = o.image.height;
         }
-        context.drawImage(image, sourceImageX, sourceImageY, w, h, x, y, w, h);
+
+        w = sourceW * imageScale;
+        h = sourceH * imageScale;
+ 
+        context.drawImage(image, sourceImageX, sourceImageY, sourceW, sourceH, x, y, w, h);
     });
 }
 
