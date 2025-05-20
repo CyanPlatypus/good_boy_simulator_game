@@ -107,7 +107,9 @@ function onLoad() {
         0,
         0,
         9,
-        roadCollider
+        new Map([
+            [RoleType.Collidable, new CollidableRole(roadCollider)]
+        ])
     );
     sceneObjects.push(o);
 
@@ -164,12 +166,30 @@ function onLoad() {
         10, // z
         delta,
         0.3,
-        8,
+        7,
         playerCollider,
         sceneObjects,
         keyboardController
     );
     sceneObjects.push(player);
+
+    imgC = new Image();
+    imgC.src = 'images/items/ball_highlighted.png';
+    const ballInteractiveCollider = new Collider(800, 285, 12 * imageScale, 12 * imageScale);
+    const interactibleRole = new InteractibleRole(imgC, ballInteractiveCollider, player);
+    imgC = new Image();
+    imgC.src = 'images/items/ball.png';
+    var o = new StaticObject(
+        imgC,
+        1,
+        ballInteractiveCollider.x,
+        ballInteractiveCollider.y,
+        8,
+        new Map([
+            [RoleType.Interactable, interactibleRole]
+        ])
+    );
+    sceneObjects.push(o);
  
     canvas = document.getElementById('canvas');
     context = canvas.getContext('2d');
@@ -183,7 +203,9 @@ function onLoad() {
 }
 
 function updateState() {
-    player.act();
+    for (const o of sceneObjects){
+        o.act();
+    }
     camera.follow(player);
 }
 
@@ -246,10 +268,16 @@ function drawDebug(){
         "black");
 
     for (const o of sceneObjects){
-        if(o.collider !== undefined){
-            const x = (o.collider.x - (camera.x - camera.width/2.0)) * (o.parallaxValue);
-            const y = (o.collider.y - (camera.y - camera.height/2.0));
-            drawRectangle(x, y, o.collider.width, o.collider.height, "black");
+        let collider = o.collider;
+        if(collider === undefined){
+            if (o.hasRole(RoleType.Collidable)){
+                collider = o.getRole(RoleType.Collidable).collider;
+            }
+        }
+        if(collider !== undefined){
+            const x = (collider.x - (camera.x - camera.width/2.0)) * (o.parallaxValue);
+            const y = (collider.y - (camera.y - camera.height/2.0));
+            drawRectangle(x, y, collider.width, collider.height, "black");
         }
     }
 }

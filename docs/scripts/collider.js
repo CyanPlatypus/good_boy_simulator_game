@@ -22,4 +22,20 @@ class Collider{
 
         this.setComputed();
     }
+
+    isColliding(collider){
+        return this.isIntersecting(collider) || collider.isIntersecting(this);
+    }
+
+    isIntersecting(collider){
+        const intersectsSides = this.isBetween(this.rightSide, collider.leftSide, collider.rightSide)
+            ||  this.isBetween(this.leftSide, collider.leftSide, collider.rightSide);
+        const intersectsTopOrBottom = this.isBetween(this.bottom, collider.top, collider.bottom)
+            || this.isBetween(this.top, collider.top, collider.bottom);
+        return intersectsSides && intersectsTopOrBottom;
+    }
+
+    isBetween(target, from, to){
+        return from <= target && target <= to;
+    }
 }

@@ -38,7 +38,7 @@ class Player {
         this.velocityY = 0;
         this.collider = collider;
 
-        this.objectColliders = sceneObjects.filter(o => o.collider !== undefined).map(o => o.collider);
+        this.sceneObjects = sceneObjects;
 
         this.inputController = inputController;
 
@@ -47,6 +47,18 @@ class Player {
     }
 
     act(){
+        this.interact();
+        // todo move only if not interacting
+        this.move(); 
+    }
+
+    move(){
+        let canMove = this.stateAllowsMovement();
+
+        if (!canMove){
+            return;
+        }
+
         let [attemptedDeltaX, attemptedDeltaY] = this.getInputVelocity();
         [attemptedDeltaX, attemptedDeltaY] = this.addGravityVelocity(attemptedDeltaX, attemptedDeltaY);
         [this.velocityX, this.velocityY] = this.getAllowedVelocity(attemptedDeltaX, attemptedDeltaY);
@@ -55,6 +67,57 @@ class Player {
         this.y += this.velocityY;
         this.collider.move(this.x, this.y);
 
+        this.updateState();
+    }
+
+    stateAllowsMovement(){
+        if (this.state === PlayerStateType.Interact){
+                return false;
+        }
+        return true;
+    }
+
+    interact(){
+        let canInteract = this.stateAllowsInteraction();
+
+        if (!canInteract){
+            return;
+        }
+
+        // todo if interact button pressed
+
+        const interactable = this.getInteractable();
+
+        if (interactable === undefined){
+            return;
+        }
+    }
+
+    canInteract(interactableCollider){
+        let canInteract = this.stateAllowsInteraction();
+
+        if (!canInteract){
+            return false;
+        }
+
+        return this.collider.isColliding(interactableCollider);
+    }
+
+    stateAllowsInteraction(){
+        if (this.state === PlayerStateType.Jump
+            || this.state === PlayerStateType.Fall){
+                return false;
+        }
+        return true;
+    }
+
+    getInteractable(){
+        return this.sceneObjects
+        .filter(o => o != this && o.hasRole(RoleType.Interactable) && o.getRole(RoleType.Interactable).isHighlighted)
+        .find(o => true);
+    }
+
+    updateState(){
         const oldState = this.state;
         const oldfaceDirection = this.faceDirection;
 
@@ -64,7 +127,6 @@ class Player {
         else if (this.velocityX < 0){
             this.faceDirection = PlayerFaceDirectionType.Left;
         }
-
 
         // fall
         if (this.velocityY > 0){
@@ -151,7 +213,11 @@ class Player {
     }
 
     getAllowedVelocity(attemptedVelocityX, attemptedVelocityY){
-        for (const collider of this.objectColliders){
+        const objectColliders = this.sceneObjects
+        .filter(o => o != this && o.hasRole(RoleType.Collidable))
+        .map(o => o.getRole(RoleType.Collidable).collider);
+
+        for (const collider of objectColliders){
             const isColliding = this.isColliding(attemptedVelocityX, attemptedVelocityY, collider);
             if (!isColliding){
                 continue;
@@ -170,15 +236,7 @@ class Player {
         const top = attemptedY;
         const bottom = attemptedY + this.collider.height;
 
-        const intersectsSides = this.isBetween(rightSide, collider.leftSide, collider.rightSide)
-            ||  this.isBetween(leftSide, collider.leftSide, collider.rightSide);
-        const intersectsTopOrBottom = this.isBetween(bottom, collider.top, collider.bottom)
-            || this.isBetween(top, collider.top, collider.bottom);
-        return intersectsSides && intersectsTopOrBottom;
-    }
-
-    isBetween(target, from, to){
-        return from <= target && target <= to;
+        return this.collider.isColliding(new Collider(attemptedX, attemptedY, this.collider.width, this.collider.height));
     }
 
     getAllowedVelocityWithCollider(attemptedVelocityX, attemptedVelocityY, collider){
@@ -222,7 +280,8 @@ const PlayerStateType = Object.freeze({
     Idle: Symbol("Idle"),
     Walk: Symbol("Walk"),
     Fall: Symbol("Fall"),
-    Jump: Symbol("Jump")
+    Jump: Symbol("Jump"),
+    Interact: Symbol("Interact")
 });
 
 const InputType = Object.freeze({
