@@ -231,12 +231,8 @@ class Player {
     isColliding(attemptedVelocityX, attemptedVelocityY, collider){
         const attemptedX = this.x + attemptedVelocityX;
         const attemptedY = this.y + attemptedVelocityY;
-        const rightSide = attemptedX + this.collider.width;
-        const leftSide = attemptedX;
-        const top = attemptedY;
-        const bottom = attemptedY + this.collider.height;
 
-        return this.collider.isColliding(new Collider(attemptedX, attemptedY, this.collider.width, this.collider.height));
+        return collider.isColliding(new Collider(attemptedX, attemptedY, this.collider.width, this.collider.height));
     }
 
     getAllowedVelocityWithCollider(attemptedVelocityX, attemptedVelocityY, collider){
