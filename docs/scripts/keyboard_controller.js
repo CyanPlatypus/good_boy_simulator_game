@@ -2,6 +2,10 @@ class KeyboardController {
 
     constructor(){
         this.pressedKeys = {};
+        this.pressedKeys["r"] = false;
+        this.pressedKeys["l"] = false;
+        this.pressedKeys["j"] = false;
+        this.pressedKeys["i"] = false;
     }
 
     consumeKey(keyCode, keyPressed){
@@ -24,6 +28,10 @@ class KeyboardController {
             this.pressedKeys["j"] = keyPressed;
             consumed = true;
             break;
+        case "Enter":
+            this.pressedKeys["i"] = keyPressed;
+            consumed = true;
+            break;
         }
         
         return consumed;
@@ -34,10 +42,14 @@ class KeyboardController {
     }
 
     isGoLeftPressed(){
-        return this.pressedKeys["l"]
+        return this.pressedKeys["l"];
     }
 
     isJumpPressed(){
         return this.pressedKeys["j"];
+    }
+
+    isInteractPressed(){
+        return this.pressedKeys["i"];
     }
 }

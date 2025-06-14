@@ -9,6 +9,8 @@ class Player {
         fallLeftAnimator,
         jumpRightAnimator,
         jumpLeftAnimator,
+        pickupRightAnimator,
+        pickupLeftAnimator,
         parallaxValue,
         x, y, z,
         speed,
@@ -17,6 +19,7 @@ class Player {
         collider,
         sceneObjects,
         inputController){
+
         this.idleRightAnimator = idleRightAnimator;
         this.idleLeftAnimator = idleLeftAnimator;
         this.goRightAnimator = goRightAnimator;
@@ -25,6 +28,8 @@ class Player {
         this.fallLeftAnimator = fallLeftAnimator;
         this.jumpRightAnimator = jumpRightAnimator;
         this.jumpLeftAnimator = jumpLeftAnimator;
+        this.pickupRightAnimator = pickupRightAnimator;
+        this.pickupLeftAnimator = pickupLeftAnimator;
         this.animator = this.idleRightAnimator;
 
         this.parallaxValue = parallaxValue;
@@ -44,18 +49,21 @@ class Player {
 
         this.state = PlayerStateType.Idle;
         this.faceDirection = PlayerFaceDirectionType.Right;
+        this.interactableObjectRole = undefined;
     }
 
     act(){
         this.interact();
-        // todo move only if not interacting
-        this.move(); 
+        this.move();
+        this.updateState();
     }
 
     move(){
         let canMove = this.stateAllowsMovement();
 
         if (!canMove){
+            this.velocityX = 0;
+            this.velocityY = 0;
             return;
         }
 
@@ -66,31 +74,36 @@ class Player {
         this.x += this.velocityX;
         this.y += this.velocityY;
         this.collider.move(this.x, this.y);
-
-        this.updateState();
     }
 
     stateAllowsMovement(){
-        if (this.state === PlayerStateType.Interact){
-                return false;
+        if (this.state === PlayerStateType.Interact 
+            || this.interactableObjectRole !== undefined){
+            return false;
         }
         return true;
     }
 
     interact(){
+        this.finishInteractionIfPossible();
+
         let canInteract = this.stateAllowsInteraction();
 
         if (!canInteract){
             return;
         }
 
-        // todo if interact button pressed
+        if(keyboardController.isInteractPressed() === false){
+            return;
+        }
 
         const interactable = this.getInteractable();
 
         if (interactable === undefined){
             return;
         }
+
+        this.interactWithItem(interactable);
     }
 
     canInteract(interactableCollider){
@@ -105,8 +118,9 @@ class Player {
 
     stateAllowsInteraction(){
         if (this.state === PlayerStateType.Jump
-            || this.state === PlayerStateType.Fall){
-                return false;
+            || this.state === PlayerStateType.Fall
+            || this.interactableObjectRole !== undefined){
+            return false;
         }
         return true;
     }
@@ -115,6 +129,31 @@ class Player {
         return this.sceneObjects
         .filter(o => o != this && o.hasRole(RoleType.Interactable) && o.getRole(RoleType.Interactable).isHighlighted)
         .find(o => true);
+    }
+    
+    interactWithItem(interactable){
+        let interactableRole = interactable.getRole(RoleType.Interactable)
+        if (interactableRole instanceof CollectableItemRole){
+            this.collectItem(interactableRole);
+        }
+    }
+
+    collectItem(interactableRole){
+        this.interactableObjectRole = interactableRole;
+        interactableRole.processInteraction();
+    }
+
+    finishInteractionIfPossible(){
+        if (this.interactableObjectRole instanceof CollectableItemRole){
+            this.finishPickupIfPossible();
+        }
+    }
+
+    finishPickupIfPossible(){
+        if(this.animator.isFinishedAnimation){
+            this.item = this.interactableObjectRole.carryableImage;
+            this.interactableObjectRole = undefined;
+        }
     }
 
     updateState(){
@@ -140,6 +179,12 @@ class Player {
         else if(this.velocityX != 0){
             this.state = PlayerStateType.Walk;
         }
+        // interact
+        else if(this.interactableObjectRole !== undefined
+            //&& oldState != this.state.Interact
+        ){
+            this.state = PlayerStateType.Interact;
+        }
         // idle
         else{
             this.state = PlayerStateType.Idle;
@@ -156,6 +201,10 @@ class Player {
         else if (this.state === PlayerStateType.Walk){
             this.animator = this.faceDirection === PlayerFaceDirectionType.Right
             ? this.goRightAnimator : this.goLeftAnimator; 
+        }
+        else if (this.state == PlayerStateType.Interact){
+            this.animator = this.faceDirection === PlayerFaceDirectionType.Right
+            ? this.pickupRightAnimator : this.pickupLeftAnimator; 
         }
         else if (this.state === PlayerStateType.Idle){
             this.animator = this.faceDirection === PlayerFaceDirectionType.Right

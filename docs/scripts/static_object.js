@@ -50,10 +50,10 @@ class CollidableRole {
 }
 
 class InteractibleRole {
-    constructor(highlightedImage, collider, player){
+    constructor(highlightedImage, collider, game){
         this.highlightedImage = highlightedImage;
         this.collider = collider;
-        this.player = player;
+        this.game = game;
 
         this.isHighlighted = false;
     }
@@ -64,7 +64,7 @@ class InteractibleRole {
     }
 
     act(){
-        this.isHighlighted = this.player.canInteract(this.collider);
+        this.isHighlighted = this.game.player.canInteract(this.collider);
 
         if (this.isHighlighted){
             this.actor.image = this.highlightedImage;
@@ -76,9 +76,15 @@ class InteractibleRole {
 }
 
 // todo refactor
-class CollectableItem{
-    interact(){
-        //get removed from the game
+class CollectableItemRole extends InteractibleRole {
+
+    constructor(highlightedImage, collider, game, carryableImage){
+        super(highlightedImage, collider, game);
+        this.carryableImage = carryableImage;
+    }
+
+    processInteraction(){
+        this.game.removeObject(this.actor);
     }
 }
 

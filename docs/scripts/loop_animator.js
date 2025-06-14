@@ -10,12 +10,15 @@ class LoopAnimator{
             this.sourceImageX += this.frameWidth;
             this.sourceImageY = 0;
         }
+        else if(this.isSingleLoop){
+            this.isFinishedAnimation = true;
+        }
         else {
             this.selectFirstFrame();
         }
     }
 
-    constructor(image, frameWidth, msBetweenFrames){
+    constructor(image, frameWidth, msBetweenFrames, isSingleLoop = false){
         this.image = image;
 
         this.selectFirstFrame();
@@ -29,11 +32,16 @@ class LoopAnimator{
         this.startWithFirstFrame = true;
         this.previousFrameAt = 0;
         this.msBetweenFrames = msBetweenFrames;
+        this.isSingleLoop = isSingleLoop;
+        this.isFinishedAnimation = false;
     }
 
     prepareFrame(){
 
         if (this.startWithFirstFrame){
+            if(this.isSingleLoop === true){
+                this.isFinishedAnimation = false;
+            }
 
             this.selectFirstFrame();
             this.startWithFirstFrame = false;

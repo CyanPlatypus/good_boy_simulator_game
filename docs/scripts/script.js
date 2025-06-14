@@ -3,14 +3,10 @@ window.addEventListener("load", onLoad);
 var canvas;
 var context;
 
-var sceneObjects = [];
-
-var delta = 3;
-const imageScale = 2;
-
 var keyboardController;
-var player;
 var camera;
+
+var game;
 
 function onKeyChange(event, keyPressed){
 
@@ -54,146 +50,11 @@ function onLoad() {
     window.addEventListener("keydown", onKeyDown);
     window.addEventListener("keyup", onKeyUp);
  
-    var imgC = new Image();
-    imgC.src = 'images/scene/sky.png';
-    var o = new StaticObject(
-        imgC,
-        0,
-        0,
-        0,
-        0
-    );
-    sceneObjects.push(o);
-
-    var imgC = new Image();
-    imgC.src = 'images/scene/back_cloud.png';
-    var o = new StaticObject(
-        imgC,
-        0.1,
-        0,
-        0,
-        0
-    );
-    sceneObjects.push(o);
-
-    imgC = new Image();
-    imgC.src = 'images/scene/front_cloud.png';
-    var o = new StaticObject(
-        imgC,
-        0.2,
-        0,
-        0,
-        0
-    );
-    sceneObjects.push(o);
-
-    imgC = new Image();
-    imgC.src = 'images/scene/wheel.png';
-    var o = new StaticObject(
-        imgC,
-        0.9,
-        0,
-        0,
-        3
-    );
-    sceneObjects.push(o);
-
-    imgC = new Image();
-    imgC.src = 'images/scene/pier.png';
-    const roadCollider = new Collider(0, 297, 1700, 100);
-    var o = new StaticObject(
-        imgC,
-        1,
-        0,
-        0,
-        9,
-        new Map([
-            [RoleType.Collidable, new CollidableRole(roadCollider)]
-        ])
-    );
-    sceneObjects.push(o);
-
-    imgC = new Image();
-    imgC.src = 'images/scene/foreground_grass.png';
-    var o = new StaticObject(
-        imgC,
-        1.3,
-        0,
-        0,
-        3
-    );
-    sceneObjects.push(o);
-
-    imgC = new Image();
-    imgC.src = 'images/doggo/idle_right_doggo.png';
-    var playerIdleRightAnimator = new LoopAnimator(imgC, 19, 400);
-    imgC = new Image();
-    imgC.src = 'images/doggo/idle_left_doggo.png';
-    var playerIdleLeftAnimator = new LoopAnimator(imgC, 19, 400);
-    imgC = new Image();
-    imgC.src = 'images/doggo/walk_right_doggo.png';
-    var playerGoRightAnimator = new LoopAnimator(imgC, 19, 200);
-    imgC = new Image();
-    imgC.src = 'images/doggo/walk_left_doggo.png';
-    var playerGoLeftAnimator = new LoopAnimator(imgC, 19, 200);
-    imgC = new Image();
-    imgC.src = 'images/doggo/fall_right_doggo.png';
-    var playerFallRight = new LoopAnimator(imgC, 19, 200);
-    imgC = new Image();
-    imgC.src = 'images/doggo/fall_left_doggo.png';
-    var playerFallLeft = new LoopAnimator(imgC, 19, 200);
-    imgC = new Image();
-    imgC.src = 'images/doggo/jump_right_doggo.png';
-    var playerjumpRight = new LoopAnimator(imgC, 19, 200);
-    imgC = new Image();
-    imgC.src = 'images/doggo/jump_left_doggo.png';
-    var playerJumpLeft = new LoopAnimator(imgC, 19, 200);
-
-    const playerCollider = new Collider(250, 10, 19 * imageScale, 14 * imageScale);
-
-    player = new Player(
-        playerIdleRightAnimator,
-        playerIdleLeftAnimator,
-        playerGoRightAnimator,
-        playerGoLeftAnimator,
-        playerFallRight, // tmp, update to fall
-        playerFallLeft, // tmp, update to fall
-        playerjumpRight, // tmp, update to jump
-        playerJumpLeft, // tmp, update to jump
-        1, // ParallaxValue
-        250, // x
-        10, // y
-        10, // z
-        delta,
-        0.3,
-        7,
-        playerCollider,
-        sceneObjects,
-        keyboardController
-    );
-    sceneObjects.push(player);
-
-    imgC = new Image();
-    imgC.src = 'images/items/ball_highlighted.png';
-    const ballInteractiveCollider = new Collider(800, 285, 12 * imageScale, 12 * imageScale);
-    const interactibleRole = new InteractibleRole(imgC, ballInteractiveCollider, player);
-    imgC = new Image();
-    imgC.src = 'images/items/ball.png';
-    var o = new StaticObject(
-        imgC,
-        1,
-        ballInteractiveCollider.x,
-        ballInteractiveCollider.y,
-        8,
-        new Map([
-            [RoleType.Interactable, interactibleRole]
-        ])
-    );
-    sceneObjects.push(o);
- 
     canvas = document.getElementById('canvas');
     context = canvas.getContext('2d');
     context.imageSmoothingEnabled = false;
+
+    game = new Game();
 
     const worldCollider = new Collider(0, 0, 2000, canvas.height);
     camera = new Camera(100, 370, canvas.width, canvas.height, worldCollider);
@@ -203,16 +64,16 @@ function onLoad() {
 }
 
 function updateState() {
-    for (const o of sceneObjects){
+    for (const o of game.sceneObjects){
         o.act();
     }
-    camera.follow(player);
+    camera.follow(game.player);
 }
 
 function drawObjects() {
     context.clearRect(0, 0, canvas.width, canvas.height);
 
-    sceneObjects.forEach(o => {
+    game.sceneObjects.forEach(o => {
 
         var image;
 
@@ -246,8 +107,8 @@ function drawObjects() {
             sourceH = o.image.height;
         }
 
-        w = sourceW * imageScale;
-        h = sourceH * imageScale;
+        w = sourceW * game.imageScale;
+        h = sourceH * game.imageScale;
  
         context.drawImage(image, sourceImageX, sourceImageY, sourceW, sourceH, x, y, w, h);
     });
@@ -267,7 +128,7 @@ function drawDebug(){
         camera.height,
         "black");
 
-    for (const o of sceneObjects){
+    for (const o of game.sceneObjects){
         let collider = o.collider;
         if(collider === undefined){
             if (o.hasRole(RoleType.Collidable)){
