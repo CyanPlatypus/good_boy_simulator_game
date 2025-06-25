@@ -35,7 +35,27 @@ class Collider{
         return intersectsSides && intersectsTopOrBottom;
     }
 
+    getPredictedCollisionInfo(colliderBefore, colliderAfter){
+        const isColliding = this.isColliding(colliderAfter);
+        const crossedLeftSide = colliderBefore.rightSide <= this.leftSide && this.leftSide <= colliderAfter.rightSide;
+        const crossedRightSide = colliderAfter.leftSide <= this.rightSide && this.rightSide <= colliderBefore.leftSide;
+        const crossedTop = colliderBefore.bottom <= this.top && this.top <= colliderAfter.bottom;
+        const crossedBottom = colliderAfter.top <= this.bottom && this.bottom <= colliderBefore.top;
+
+        return new CollosionInfo(isColliding, crossedLeftSide, crossedRightSide, crossedTop, crossedBottom);
+    }
+
     isBetween(target, from, to){
-        return from <= target && target <= to;
+        return from < target && target < to;
+    }
+}
+
+class CollosionInfo{
+    constructor(isColliding, crossedLeftSide, crossedRightSide, crossedTop, crossedBottom){
+        this.isColliding = isColliding;
+        this.crossedLeftSide = crossedLeftSide;
+        this.crossedRightSide = crossedRightSide;
+        this.crossedTop = crossedTop;
+        this.crossedBottom = crossedBottom;
     }
 }

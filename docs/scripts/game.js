@@ -63,7 +63,25 @@ class Game {
             0,
             9,
             new Map([
-                [RoleType.Collidable, new CollidableRole(roadCollider)]
+                [RoleType.Collidable, new CollidableRole(roadCollider, this)]
+            ])
+        );
+        this.sceneObjects.push(o);
+
+        imgC = new Image();
+        imgC.src = 'images/doggo/pickup_right_doggo.png';
+        var fakePillarKillAnimation = new LoopAnimator(imgC, 19, 800, true);
+        imgC = new Image();
+        imgC.src = 'images/items/pillar_20_40.png';
+        const pillarCollider = new Collider(300, 250, 20 * this.imageScale, 40 * this.imageScale);
+        var o = new StaticObject(
+            imgC,
+            1, // parallax
+            300, // x
+            250, // y
+            9, // z
+            new Map([
+                [RoleType.Collidable, new KillableFromTheTop(pillarCollider, this, fakePillarKillAnimation)]
             ])
         );
         this.sceneObjects.push(o);
@@ -110,7 +128,6 @@ class Game {
         imgC.src = 'images/doggo/pickup_left_doggo.png';
         var playerPickupLeft = new LoopAnimator(imgC, 19, 400, true);
 
-
         const playerCollider = new Collider(250, 10, 19 * this.imageScale, 14 * this.imageScale);
 
         this.player = new Player(
@@ -124,13 +141,13 @@ class Game {
             playerJumpLeft,
             playerPickupRight,
             playerPickupLeft,
-            1, // ParallaxValue
+            1, // parallaxValue
             250, // x
             10, // y
             10, // z
-            this.delta,
-            0.3,
-            7,
+            this.delta, //speed
+            0.3, // fallAcceleration
+            7, // jumpAcceleration
             playerCollider,
             this.sceneObjects,
             keyboardController

@@ -58,32 +58,6 @@ class Player {
         this.updateState();
     }
 
-    move(){
-        let canMove = this.stateAllowsMovement();
-
-        if (!canMove){
-            this.velocityX = 0;
-            this.velocityY = 0;
-            return;
-        }
-
-        let [attemptedDeltaX, attemptedDeltaY] = this.getInputVelocity();
-        [attemptedDeltaX, attemptedDeltaY] = this.addGravityVelocity(attemptedDeltaX, attemptedDeltaY);
-        [this.velocityX, this.velocityY] = this.getAllowedVelocity(attemptedDeltaX, attemptedDeltaY);
-
-        this.x += this.velocityX;
-        this.y += this.velocityY;
-        this.collider.move(this.x, this.y);
-    }
-
-    stateAllowsMovement(){
-        if (this.state === PlayerStateType.Interact 
-            || this.interactableObjectRole !== undefined){
-            return false;
-        }
-        return true;
-    }
-
     interact(){
         this.finishInteractionIfPossible();
 
@@ -154,6 +128,32 @@ class Player {
             this.item = this.interactableObjectRole.carryableImage;
             this.interactableObjectRole = undefined;
         }
+    }
+    
+    move(){
+        let canMove = this.stateAllowsMovement();
+
+        if (!canMove){
+            this.velocityX = 0;
+            this.velocityY = 0;
+            return;
+        }
+
+        let [attemptedDeltaX, attemptedDeltaY] = this.getInputVelocity();
+        [attemptedDeltaX, attemptedDeltaY] = this.addGravityVelocity(attemptedDeltaX, attemptedDeltaY);
+        [this.velocityX, this.velocityY] = this.getAllowedVelocity(attemptedDeltaX, attemptedDeltaY);
+
+        this.x += this.velocityX;
+        this.y += this.velocityY;
+        this.collider.move(this.x, this.y);
+    }
+
+    stateAllowsMovement(){
+        if (this.state === PlayerStateType.Interact 
+            || this.interactableObjectRole !== undefined){
+            return false;
+        }
+        return true;
     }
 
     updateState(){
@@ -262,19 +262,35 @@ class Player {
     }
 
     getAllowedVelocity(attemptedVelocityX, attemptedVelocityY){
-        const objectColliders = this.sceneObjects
+        const objectCollidableRoles = this.sceneObjects
         .filter(o => o != this && o.hasRole(RoleType.Collidable))
-        .map(o => o.getRole(RoleType.Collidable).collider);
+        .map(o => o.getRole(RoleType.Collidable));
 
-        for (const collider of objectColliders){
-            const isColliding = this.isColliding(attemptedVelocityX, attemptedVelocityY, collider);
-            if (!isColliding){
+        for (const colliderRole of objectCollidableRoles){
+            const collisionInfo = this.getPredictedCollisionInfo(attemptedVelocityX, attemptedVelocityY, colliderRole.collider);
+            if (!collisionInfo.isColliding){
                 continue;
             }
-            [attemptedVelocityX, attemptedVelocityY] = this.getAllowedVelocityWithCollider(
-                attemptedVelocityX, attemptedVelocityY, collider);
+
+            const collisionProcessResult = colliderRole.processCollision(collisionInfo);
+
+            if(collisionProcessResult == PlayerCollisionResultType.Collided){
+                [attemptedVelocityX, attemptedVelocityY] = this.getAllowedVelocityWithCollider(
+                    colliderRole.collider, collisionInfo, attemptedVelocityX, attemptedVelocityY);
+            }
+            else if(collisionProcessResult == PlayerCollisionResultType.JumpBoosted){
+                [attemptedVelocityX, attemptedVelocityY] = [attemptedVelocityX, -5]; // todo create a const with proper name 
+            }
         }
         return [attemptedVelocityX, attemptedVelocityY];
+    }
+
+    getPredictedCollisionInfo(attemptedVelocityX, attemptedVelocityY, collider){
+        const attemptedX = this.x + attemptedVelocityX;
+        const attemptedY = this.y + attemptedVelocityY;
+        const attemptedCollider = new Collider(attemptedX, attemptedY, this.collider.width, this.collider.height);
+
+        return collider.getPredictedCollisionInfo(this.collider, attemptedCollider);
     }
 
     isColliding(attemptedVelocityX, attemptedVelocityY, collider){
@@ -284,31 +300,17 @@ class Player {
         return collider.isColliding(new Collider(attemptedX, attemptedY, this.collider.width, this.collider.height));
     }
 
-    getAllowedVelocityWithCollider(attemptedVelocityX, attemptedVelocityY, collider){
-        const attemptedX = this.x + attemptedVelocityX;
-        const attemptedY = this.y + attemptedVelocityY;
-        const rightSide = attemptedX + this.collider.width;
-        const leftSide = attemptedX;
-        const top = attemptedY;
-        const bottom = attemptedY + this.collider.height;
-
-        const crossedLeftSide = this.collider.rightSide <= collider.leftSide && collider.leftSide <= rightSide;
-        if(crossedLeftSide){
+    getAllowedVelocityWithCollider(collider, collisionInfo, attemptedVelocityX, attemptedVelocityY){
+        if(collisionInfo.crossedLeftSide){
             return [collider.leftSide - this.collider.width - this.x, attemptedVelocityY];
         }
-
-        const crossedRightSide = leftSide <= collider.rightSide && collider.rightSide <= this.collider.leftSide;
-        if(crossedRightSide){
+        if(collisionInfo.crossedRightSide){
             return [collider.rightSide - this.x, attemptedVelocityY];
         }
-
-        const crossedTop = this.collider.bottom <= collider.top && collider.top <= bottom;
-        if(crossedTop){
+        if(collisionInfo.crossedTop){
             return [attemptedVelocityX, collider.top - this.collider.height - this.y];
         }
-
-        const crossedBottom = top <= collider.bottom && collider.bottom <= this.collider.top;
-        if(crossedBottom){
+        if(collisionInfo.crossedBottom){
             return [attemptedVelocityX, collider.bottom - this.y];
         }
 
@@ -333,4 +335,11 @@ const InputType = Object.freeze({
     No: Symbol("No"),
     Right: Symbol("Right"),
     Left: Symbol("Left")
+});
+
+const PlayerCollisionResultType = Object.freeze({
+    Nothing: Symbol("Nothing"),
+    Collided: Symbol("Collided"),
+    Damaged: Symbol("Damaged"),
+    JumpBoosted: Symbol("JumpBoosted")
 });

@@ -38,15 +38,50 @@ class StaticObject {
 }
 
 class CollidableRole {
-    constructor(collider){
+    constructor(collider, game){
         this.collider = collider;
+        this.game = game;
     }
 
     setActor(actor){
         this.actor = actor;
     }
 
+    processCollision(collisionInfo){
+        return PlayerCollisionResultType.Collided;
+    }
+
     act(){}
+}
+
+class KillableFromTheTop extends CollidableRole {
+    constructor(collider, game, gettingKilledAnimation){
+        super(collider, game);
+        this.gettingKilledAnimation = gettingKilledAnimation;
+        this.isCollidable = true;
+    }
+
+    processCollision(collisionInfo){
+        if(!this.isCollidable){
+            return PlayerCollisionResultType.Nothing;
+        }
+        if(collisionInfo.crossedTop){
+            this.isCollidable = false;
+            this.actor.animator = this.gettingKilledAnimation; // todo solve issue with image and animator
+            return PlayerCollisionResultType.JumpBoosted;
+        }
+        else{
+            return PlayerCollisionResultType.Collided;
+        }
+    }
+
+    act(){
+        // delete itself ftom the world when gettingKilledAnimation is finished
+        if (this.gettingKilledAnimation.isFinishedAnimation){
+            this.game.removeObject(this.actor);
+        }
+    }
+    
 }
 
 class InteractibleRole {
