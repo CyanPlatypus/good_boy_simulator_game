@@ -30,7 +30,7 @@ class Player {
         this.jumpLeftAnimator = jumpLeftAnimator;
         this.pickupRightAnimator = pickupRightAnimator;
         this.pickupLeftAnimator = pickupLeftAnimator;
-        this.animator = this.idleRightAnimator;
+        this.view = this.idleRightAnimator;
 
         this.parallaxValue = parallaxValue;
         this.x = x;
@@ -124,7 +124,7 @@ class Player {
     }
 
     finishPickupIfPossible(){
-        if(this.animator.isFinishedAnimation){
+        if(this.view.isFinishedAnimation){
             this.item = this.interactableObjectRole.carryableImage;
             this.interactableObjectRole = undefined;
         }
@@ -191,28 +191,28 @@ class Player {
         }
 
         if(this.state === PlayerStateType.Fall){
-            this.animator = this.faceDirection === PlayerFaceDirectionType.Right
+            this.view = this.faceDirection === PlayerFaceDirectionType.Right
                 ? this.fallRightAnimator : this.fallLeftAnimator; 
         }
         else if(this.state === PlayerStateType.Jump){
-            this.animator = this.faceDirection === PlayerFaceDirectionType.Right
+            this.view = this.faceDirection === PlayerFaceDirectionType.Right
                 ? this.jumpRightAnimator : this.jumpLeftAnimator; 
         }
         else if (this.state === PlayerStateType.Walk){
-            this.animator = this.faceDirection === PlayerFaceDirectionType.Right
+            this.view = this.faceDirection === PlayerFaceDirectionType.Right
             ? this.goRightAnimator : this.goLeftAnimator; 
         }
         else if (this.state == PlayerStateType.Interact){
-            this.animator = this.faceDirection === PlayerFaceDirectionType.Right
+            this.view = this.faceDirection === PlayerFaceDirectionType.Right
             ? this.pickupRightAnimator : this.pickupLeftAnimator; 
         }
         else if (this.state === PlayerStateType.Idle){
-            this.animator = this.faceDirection === PlayerFaceDirectionType.Right
+            this.view = this.faceDirection === PlayerFaceDirectionType.Right
             ? this.idleRightAnimator : this.idleLeftAnimator; 
         }
 
         if(oldState != this.state || oldfaceDirection != this.faceDirection){
-            this.animator.startWithFirstFrame = true;
+            this.view.startWithFirstFrame = true;
         }
     }
 

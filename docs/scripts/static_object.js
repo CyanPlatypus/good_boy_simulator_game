@@ -1,6 +1,6 @@
 class StaticObject {
     constructor(image, parallaxValue, x, y, z, roleMap){
-        this.image = image;
+        this.view = image;
         this.parallaxValue = parallaxValue;
         this.x = x;
         this.y = y;
@@ -67,7 +67,7 @@ class KillableFromTheTop extends CollidableRole {
         }
         if(collisionInfo.crossedTop){
             this.isCollidable = false;
-            this.actor.animator = this.gettingKilledAnimation; // todo solve issue with image and animator
+            this.actor.view = this.gettingKilledAnimation;
             return PlayerCollisionResultType.JumpBoosted;
         }
         else{
@@ -95,17 +95,17 @@ class InteractibleRole {
 
     setActor(actor){
         this.actor = actor;
-        this.actorRegularImage = actor.image;
+        this.actorRegularImage = actor.view;
     }
 
     act(){
         this.isHighlighted = this.game.player.canInteract(this.collider);
 
         if (this.isHighlighted){
-            this.actor.image = this.highlightedImage;
+            this.actor.view = this.highlightedImage;
         }
         else{
-            this.actor.image = this.actorRegularImage;
+            this.actor.view = this.actorRegularImage;
         }
     }
 }

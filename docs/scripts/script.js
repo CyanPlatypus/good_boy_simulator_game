@@ -85,26 +85,27 @@ function drawObjects() {
 
         const x = (o.x - (camera.x - camera.width/2.0)) * (o.parallaxValue);
         const y = (o.y - (camera.y - camera.height/2.0));// * (o.ParallaxValue);
+        
+        if(o.view instanceof LoopAnimator){
+            const animator = o.view;
+            animator.prepareFrame();
 
-        if(o.animator !== undefined){
-            o.animator.prepareFrame();
+            image = animator.image;
 
-            image = o.animator.image;
-
-            sourceImageX = o.animator.sourceImageX;
-            sourceImageY = o.animator.sourceImageY;
+            sourceImageX = animator.sourceImageX;
+            sourceImageY = animator.sourceImageY;
  
-            sourceW = o.animator.width;
-            sourceH = o.animator.height;
+            sourceW = animator.width;
+            sourceH = animator.height;
         }
         else{
-            image = o.image;
+            image = o.view;
 
             sourceImageX = 0;
             sourceImageY = 0;
 
-            sourceW = o.image.width;
-            sourceH = o.image.height;
+            sourceW = image.width;
+            sourceH = image.height;
         }
 
         w = sourceW * game.imageScale;
