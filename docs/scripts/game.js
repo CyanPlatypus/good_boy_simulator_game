@@ -63,7 +63,7 @@ class Game {
             0,
             9,
             new Map([
-                [RoleType.Collidable, new CollidableRole(roadCollider, this)]
+                [RoleType.Collidable, new PhysicallyCollidableRole(roadCollider, this)]
             ])
         );
         this.sceneObjects.push(o);
@@ -71,6 +71,7 @@ class Game {
         imgC = new Image();
         imgC.src = 'images/doggo/pickup_right_doggo.png';
         var fakePillarKillAnimation = new LoopAnimator(imgC, 19, 800, true);
+        var fakePillarAttackAnimation = new LoopAnimator(imgC, 19, 1800, true);
         imgC = new Image();
         imgC.src = 'images/items/pillar_20_40.png';
         const pillarCollider = new Collider(300, 250, 20 * this.imageScale, 40 * this.imageScale);
@@ -81,7 +82,7 @@ class Game {
             250, // y
             9, // z
             new Map([
-                [RoleType.Collidable, new KillableFromTheTop(pillarCollider, this, fakePillarKillAnimation)]
+                [RoleType.Collidable, new Enemy(pillarCollider, this, fakePillarKillAnimation, fakePillarAttackAnimation)]
             ])
         );
         this.sceneObjects.push(o);

@@ -281,6 +281,12 @@ class Player {
             else if(collisionProcessResult == PlayerCollisionResultType.JumpBoosted){
                 [attemptedVelocityX, attemptedVelocityY] = [attemptedVelocityX, -5]; // todo create a const with proper name 
             }
+            else if(collisionProcessResult == PlayerCollisionResultType.Damaged){
+                [attemptedVelocityX, attemptedVelocityY] = [ attemptedVelocityX * -10, -5];
+                // make sure the doggo can't move
+                // make sure doggo has damage animation
+                // make sure doggo faces the same direction as before being attacked
+            }
         }
         return [attemptedVelocityX, attemptedVelocityY];
     }

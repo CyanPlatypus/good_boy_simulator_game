@@ -1,6 +1,7 @@
 class StaticObject {
     constructor(image, parallaxValue, x, y, z, roleMap){
         this.view = image;
+        this.idleView = this.view;
         this.parallaxValue = parallaxValue;
         this.x = x;
         this.y = y;
@@ -37,7 +38,7 @@ class StaticObject {
     }
 }
 
-class CollidableRole {
+class PhysicallyCollidableRole {
     constructor(collider, game){
         this.collider = collider;
         this.game = game;
@@ -54,7 +55,7 @@ class CollidableRole {
     act(){}
 }
 
-class KillableFromTheTop extends CollidableRole {
+class KillableFromTheTop extends PhysicallyCollidableRole {
     constructor(collider, game, gettingKilledAnimation){
         super(collider, game);
         this.gettingKilledAnimation = gettingKilledAnimation;
@@ -71,7 +72,7 @@ class KillableFromTheTop extends CollidableRole {
             return PlayerCollisionResultType.JumpBoosted;
         }
         else{
-            return PlayerCollisionResultType.Collided;
+            return super.processCollision(collisionInfo);
         }
     }
 
@@ -81,8 +82,38 @@ class KillableFromTheTop extends CollidableRole {
             this.game.removeObject(this.actor);
         }
     }
-    
 }
+
+// todo change PhysicallyCollidableRole to work with a list of collidable extensions
+class Enemy extends KillableFromTheTop {
+    constructor(collider, game, gettingKilledAnimation, attackAnimation){
+        super(collider, game, gettingKilledAnimation);
+        this.attackAnimation = attackAnimation;
+    }
+
+    processCollision(collisionInfo){
+        if(!this.isCollidable){
+            return PlayerCollisionResultType.Nothing;
+        }
+        if(collisionInfo.crossedLeftSide || collisionInfo.crossedRightSide){
+            this.attackAnimation.startWithFirstFrame = true;
+            this.actor.view = this.attackAnimation;
+            return PlayerCollisionResultType.Damaged;
+        }
+        else{
+            return super.processCollision(collisionInfo);
+        }
+    }
+
+    act(){
+        if (this.attackAnimation.isFinishedAnimation){
+            this.actor.idleView.startWithFirstFrame = true;
+            this.actor.view = this.actor.idleView;
+        }
+        super.act();
+    }
+}
+
 
 class InteractibleRole {
     constructor(highlightedImage, collider, game){
@@ -95,7 +126,7 @@ class InteractibleRole {
 
     setActor(actor){
         this.actor = actor;
-        this.actorRegularImage = actor.view;
+        //this.actorRegularImage = actor.view;
     }
 
     act(){
@@ -105,7 +136,7 @@ class InteractibleRole {
             this.actor.view = this.highlightedImage;
         }
         else{
-            this.actor.view = this.actorRegularImage;
+            this.actor.view = this.actor.idleView;
         }
     }
 }
