@@ -69,12 +69,39 @@ class Game {
         this.sceneObjects.push(o);
 
         imgC = new Image();
-        imgC.src = 'images/doggo/pickup_right_doggo.png';
-        var fakePillarKillAnimation = new LoopAnimator(imgC, 19, 800, true);
-        var fakePillarAttackAnimation = new LoopAnimator(imgC, 19, 1800, true);
+        imgC.src = 'images/sand_castle/send_castle_two_towers_dead.png';
+        var castleKilledAnimation = new LoopAnimator(imgC, 25, 800, true);
         imgC = new Image();
-        imgC.src = 'images/items/pillar_20_40.png';
-        const pillarCollider = new Collider(300, 250, 20 * this.imageScale, 40 * this.imageScale);
+        imgC.src = 'images/sand_castle/send_castle_two_towers_idle.png';
+        const castleCollider = new Collider(50, 257, 25 * this.imageScale, 20 * this.imageScale);
+        const castleCollidableRole = new PhysicallyCollidableRole(castleCollider, this, [
+            new KillableFromTheTopBehaviour(castleKilledAnimation)
+        ]);
+        var o = new StaticObject(
+            imgC,
+            1, // parallax
+            50, // x
+            257, // y
+            9, // z
+            new Map([
+                [RoleType.Collidable, castleCollidableRole]
+            ])
+        );
+        this.sceneObjects.push(o);
+
+        imgC = new Image();
+        imgC.src = 'images/seagull/seagull_left_dead_static.png';
+        var seagullKilledAnimation = new LoopAnimator(imgC, 20, 1800, true);
+        imgC = new Image();
+        imgC.src = 'images/seagull/seagull_left_attack_static.png';
+        var seagullAttackAnimation = new LoopAnimator(imgC, 20, 800, true);
+        imgC = new Image();
+        imgC.src = 'images/seagull/seagull_left_idle_static.png';
+        const seagullCollider = new Collider(300, 250, 20 * this.imageScale, 14 * this.imageScale);
+        const seagullCollidableRole = new PhysicallyCollidableRole(seagullCollider, this, [
+            new KillableFromTheTopBehaviour(seagullKilledAnimation),
+            new SideDamageBehaviour(seagullAttackAnimation)
+        ]);
         var o = new StaticObject(
             imgC,
             1, // parallax
@@ -82,7 +109,7 @@ class Game {
             250, // y
             9, // z
             new Map([
-                [RoleType.Collidable, new Enemy(pillarCollider, this, fakePillarKillAnimation, fakePillarAttackAnimation)]
+                [RoleType.Collidable, seagullCollidableRole]
             ])
         );
         this.sceneObjects.push(o);

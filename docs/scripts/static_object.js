@@ -39,9 +39,15 @@ class StaticObject {
 }
 
 class PhysicallyCollidableRole {
-    constructor(collider, game){
+    constructor(collider, game, collidableBehaviours){
         this.collider = collider;
         this.game = game;
+        this.isCollidable = true;
+        this.collidableBehaviours = collidableBehaviours ? collidableBehaviours : [];
+
+        for (const collidableBehaviour of this.collidableBehaviours){
+            collidableBehaviour.setRole(this);
+        }
     }
 
     setActor(actor){
@@ -49,71 +55,77 @@ class PhysicallyCollidableRole {
     }
 
     processCollision(collisionInfo){
+        if(!this.isCollidable){
+            return PlayerCollisionResultType.Nothing;
+        }
+
+        for (const collidableBehaviour of this.collidableBehaviours){
+            const result = collidableBehaviour.processCollision(collisionInfo);
+            if (result){
+                return result;
+            }
+        }
         return PlayerCollisionResultType.Collided;
     }
 
-    act(){}
+    act(){
+        for (const collidableBehaviour of this.collidableBehaviours){
+            collidableBehaviour.act();
+        }
+    }
 }
 
-class KillableFromTheTop extends PhysicallyCollidableRole {
-    constructor(collider, game, gettingKilledAnimation){
-        super(collider, game);
+class KillableFromTheTopBehaviour{
+    constructor( gettingKilledAnimation){
         this.gettingKilledAnimation = gettingKilledAnimation;
-        this.isCollidable = true;
+    }
+
+    setRole(role){
+        this.role = role;
     }
 
     processCollision(collisionInfo){
-        if(!this.isCollidable){
-            return PlayerCollisionResultType.Nothing;
-        }
         if(collisionInfo.crossedTop){
-            this.isCollidable = false;
-            this.actor.view = this.gettingKilledAnimation;
+            this.role.isCollidable = false;
+            this.role.actor.view = this.gettingKilledAnimation;
             return PlayerCollisionResultType.JumpBoosted;
-        }
-        else{
-            return super.processCollision(collisionInfo);
         }
     }
 
     act(){
-        // delete itself ftom the world when gettingKilledAnimation is finished
-        if (this.gettingKilledAnimation.isFinishedAnimation){
-            this.game.removeObject(this.actor);
-        }
+        // todo: just delete collider, no need for entirely removing an object (when gettingKilledAnimation is finished)
+        // if (this.role.actor.view == this.gettingKilledAnimation
+        //     && this.gettingKilledAnimation.isFinishedAnimation){
+        //     this.role.game.removeObject(this.role.actor);
+        // }
     }
 }
 
-// todo change PhysicallyCollidableRole to work with a list of collidable extensions
-class Enemy extends KillableFromTheTop {
-    constructor(collider, game, gettingKilledAnimation, attackAnimation){
-        super(collider, game, gettingKilledAnimation);
+class SideDamageBehaviour {
+    constructor(attackAnimation){
         this.attackAnimation = attackAnimation;
     }
 
+    setRole(role){
+        this.role = role;
+    }
+
     processCollision(collisionInfo){
-        if(!this.isCollidable){
-            return PlayerCollisionResultType.Nothing;
-        }
         if(collisionInfo.crossedLeftSide || collisionInfo.crossedRightSide){
             this.attackAnimation.startWithFirstFrame = true;
-            this.actor.view = this.attackAnimation;
+            this.role.actor.view = this.attackAnimation;
             return PlayerCollisionResultType.Damaged;
-        }
-        else{
-            return super.processCollision(collisionInfo);
         }
     }
 
     act(){
-        if (this.attackAnimation.isFinishedAnimation){
-            this.actor.idleView.startWithFirstFrame = true;
-            this.actor.view = this.actor.idleView;
+        if (this.role.actor.view == this.attackAnimation
+            && this.attackAnimation.isFinishedAnimation){
+            this.role.actor.idleView.startWithFirstFrame = true;
+            this.role.actor.view = this.role.actor.idleView;
         }
-        super.act();
     }
 }
-
 
 class InteractibleRole {
     constructor(highlightedImage, collider, game){
