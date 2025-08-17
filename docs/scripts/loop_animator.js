@@ -1,4 +1,4 @@
-class LoopAnimator{
+class LoopAnimator {
 
     selectFirstFrame(){
         this.sourceImageX = 0;

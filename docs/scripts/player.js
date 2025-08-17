@@ -11,6 +11,8 @@ class Player {
         jumpLeftAnimator,
         pickupRightAnimator,
         pickupLeftAnimator,
+        damagedRightAnimator,
+        damagedLeftAnimator,
         parallaxValue,
         x, y, z,
         speed,
@@ -30,6 +32,8 @@ class Player {
         this.jumpLeftAnimator = jumpLeftAnimator;
         this.pickupRightAnimator = pickupRightAnimator;
         this.pickupLeftAnimator = pickupLeftAnimator;
+        this.damagedRightAnimator = damagedRightAnimator; 
+        this.damagedLeftAnimator = damagedLeftAnimator; 
         this.view = this.idleRightAnimator;
 
         this.parallaxValue = parallaxValue;
@@ -53,9 +57,16 @@ class Player {
     }
 
     act(){
+        this.finishTakingDamageIfPossible();
         this.interact();
         this.move();
         this.updateState();
+    }
+
+    finishTakingDamageIfPossible(){
+        if (this.damagingObjectRole !== undefined && this.view.isFinishedAnimation){
+            this.damagingObjectRole = undefined;
+        }
     }
 
     interact(){
@@ -93,6 +104,7 @@ class Player {
     stateAllowsInteraction(){
         if (this.state === PlayerStateType.Jump
             || this.state === PlayerStateType.Fall
+            || this.state === PlayerStateType.Damaged
             || this.interactableObjectRole !== undefined){
             return false;
         }
@@ -139,7 +151,12 @@ class Player {
             return;
         }
 
-        let [attemptedDeltaX, attemptedDeltaY] = this.getInputVelocity();
+        let [attemptedDeltaX, attemptedDeltaY] = [0, this.velocityY];
+
+        if(this.stateAllowsMovementInput()){
+            [attemptedDeltaX, attemptedDeltaY] = this.getInputVelocity();
+        }
+
         [attemptedDeltaX, attemptedDeltaY] = this.addGravityVelocity(attemptedDeltaX, attemptedDeltaY);
         [this.velocityX, this.velocityY] = this.getAllowedVelocity(attemptedDeltaX, attemptedDeltaY);
 
@@ -156,6 +173,14 @@ class Player {
         return true;
     }
 
+    stateAllowsMovementInput(){
+        // we assume that stateAllowsMovement() was already checked and it's true
+        if (this.state === PlayerStateType.Damaged){
+            return false;
+        }
+        return true;
+    }
+
     updateState(){
         const oldState = this.state;
         const oldfaceDirection = this.faceDirection;
@@ -167,8 +192,12 @@ class Player {
             this.faceDirection = PlayerFaceDirectionType.Left;
         }
 
+        // damaged
+        if(this.damagingObjectRole !== undefined){
+            this.state = PlayerStateType.Damaged;
+        }
         // fall
-        if (this.velocityY > 0){
+        else if (this.velocityY > 0){
             this.state = PlayerStateType.Fall;
         }
         // jump
@@ -205,6 +234,11 @@ class Player {
         else if (this.state == PlayerStateType.Interact){
             this.view = this.faceDirection === PlayerFaceDirectionType.Right
             ? this.pickupRightAnimator : this.pickupLeftAnimator; 
+        }
+        else if (this.state === PlayerStateType.Damaged){
+            this.faceDirection = oldfaceDirection;
+            this.view = this.faceDirection === PlayerFaceDirectionType.Right
+            ? this.damagedRightAnimator : this.damagedLeftAnimator;
         }
         else if (this.state === PlayerStateType.Idle){
             this.view = this.faceDirection === PlayerFaceDirectionType.Right
@@ -263,8 +297,8 @@ class Player {
 
     getAllowedVelocity(attemptedVelocityX, attemptedVelocityY){
         const objectCollidableRoles = this.sceneObjects
-        .filter(o => o != this && o.hasRole(RoleType.Collidable))
-        .map(o => o.getRole(RoleType.Collidable));
+            .filter(o => o != this && o.hasRole(RoleType.Collidable))
+            .map(o => o.getRole(RoleType.Collidable));
 
         for (const colliderRole of objectCollidableRoles){
             const collisionInfo = this.getPredictedCollisionInfo(attemptedVelocityX, attemptedVelocityY, colliderRole.collider);
@@ -282,10 +316,8 @@ class Player {
                 [attemptedVelocityX, attemptedVelocityY] = [attemptedVelocityX, -5]; // todo create a const with proper name 
             }
             else if(collisionProcessResult == PlayerCollisionResultType.Damaged){
-                [attemptedVelocityX, attemptedVelocityY] = [ attemptedVelocityX * -10, -5];
-                // make sure the doggo can't move
-                // make sure doggo has damage animation
-                // make sure doggo faces the same direction as before being attacked
+                [attemptedVelocityX, attemptedVelocityY] = [ attemptedVelocityX * -10, -7]; // todo create a const with proper name
+                this.damagingObjectRole = colliderRole;
             }
         }
         return [attemptedVelocityX, attemptedVelocityY];
@@ -334,7 +366,8 @@ const PlayerStateType = Object.freeze({
     Walk: Symbol("Walk"),
     Fall: Symbol("Fall"),
     Jump: Symbol("Jump"),
-    Interact: Symbol("Interact")
+    Interact: Symbol("Interact"),
+    Damaged: Symbol("Damaged")
 });
 
 const InputType = Object.freeze({

@@ -155,6 +155,12 @@ class Game {
         imgC = new Image();
         imgC.src = 'images/doggo/pickup_left_doggo.png';
         var playerPickupLeft = new LoopAnimator(imgC, 19, 400, true);
+        imgC = new Image();
+        imgC.src = 'images/doggo/jump_right_doggo.png'; // todo update to damage taking
+        var playerDamagedRight = new LoopAnimator(imgC, 19, 800, true);
+        imgC = new Image();
+        imgC.src = 'images/doggo/jump_left_doggo.png'; // todo update to damage taking
+        var playerDamagedLeft = new LoopAnimator(imgC, 19, 800, true);
 
         const playerCollider = new Collider(250, 10, 19 * this.imageScale, 14 * this.imageScale);
 
@@ -169,6 +175,8 @@ class Game {
             playerJumpLeft,
             playerPickupRight,
             playerPickupLeft,
+            playerDamagedRight,
+            playerDamagedLeft,
             1, // parallaxValue
             250, // x
             10, // y
