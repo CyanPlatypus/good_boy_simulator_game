@@ -18,13 +18,13 @@ class LoopAnimator {
         }
     }
 
-    constructor(image, frameWidth, msBetweenFrames, isSingleLoop = false){
+    constructor(image, frameWidth, imageHeight, msBetweenFrames, isSingleLoop = false){
         this.image = image;
 
         this.selectFirstFrame();
 
         // todo pass image info and scale. image.height isn't enough. image.height * imageScale 
-        this.height = 28;//Tmp until we load images properly. Before they're loaded image.height is 0
+        this.height = imageHeight;//28;//Tmp until we load images properly. Before they're loaded image.height is 0
         this.width = frameWidth;
 
         this.frameWidth = frameWidth;
