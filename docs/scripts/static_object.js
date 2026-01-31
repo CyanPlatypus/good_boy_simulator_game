@@ -1,6 +1,6 @@
 class StaticObject {
-    constructor(image, parallaxValue, x, y, z, roleMap){
-        this.view = image;
+    constructor(view, parallaxValue, x, y, z, roleMap){
+        this.view = view;
         this.idleView = this.view;
         this.parallaxValue = parallaxValue;
         this.x = x;
@@ -75,7 +75,7 @@ class PhysicallyCollidableRole {
     }
 }
 
-class KillableFromTheTopBehaviour{
+class KillableFromTheTopBehaviour {
     constructor( gettingKilledAnimation){
         this.gettingKilledAnimation = gettingKilledAnimation;
     }
@@ -128,8 +128,8 @@ class SideDamageBehaviour {
 }
 
 class InteractibleRole {
-    constructor(highlightedImage, collider, game){
-        this.highlightedImage = highlightedImage;
+    constructor(highlightedView, collider, game){
+        this.highlightedView = highlightedView;
         this.collider = collider;
         this.game = game;
 
@@ -145,7 +145,7 @@ class InteractibleRole {
         this.isHighlighted = this.game.player.canInteract(this.collider);
 
         if (this.isHighlighted){
-            this.actor.view = this.highlightedImage;
+            this.actor.view = this.highlightedView;
         }
         else{
             this.actor.view = this.actor.idleView;
@@ -156,8 +156,8 @@ class InteractibleRole {
 // todo refactor
 class CollectableItemRole extends InteractibleRole {
 
-    constructor(highlightedImage, collider, game, carryableImage){
-        super(highlightedImage, collider, game);
+    constructor(highlightedView, collider, game, carryableImage){
+        super(highlightedView, collider, game);
         this.carryableImage = carryableImage;
     }
 
@@ -171,7 +171,6 @@ class Person{
         //display dialog
     }
 }
-
 
 const RoleType = Object.freeze({
     Collidable: Symbol("Collidable"),

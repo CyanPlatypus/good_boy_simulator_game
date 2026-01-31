@@ -18,16 +18,17 @@ class LoopAnimator {
         }
     }
 
-    constructor(image, frameWidth, imageHeight, msBetweenFrames, isSingleLoop = false){
+    constructor(image, frameWidth, imageHeight, msBetweenFrames, isSingleLoop = false, isHorisontalTile = false){
+       
         this.image = image;
 
         this.selectFirstFrame();
 
-        // todo pass image info and scale. image.height isn't enough. image.height * imageScale 
-        this.height = imageHeight;//28;//Tmp until we load images properly. Before they're loaded image.height is 0
+        this.height = imageHeight;
         this.width = frameWidth;
-
         this.frameWidth = frameWidth;
+
+        this.isHorisontalTile = isHorisontalTile;
 
         this.startWithFirstFrame = true;
         this.previousFrameAt = 0;
@@ -60,5 +61,12 @@ class LoopAnimator {
             this.previousFrameAt = now;
             return;
         }
+    }
+}
+
+class ImageView {
+    constructor(image, isHorisontalTile = false){
+        this.image = image;
+        this.isHorisontalTile = isHorisontalTile;
     }
 }

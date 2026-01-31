@@ -99,7 +99,7 @@ function drawObjects() {
             sourceH = animator.height;
         }
         else{
-            image = o.view;
+            image = o.view.image;
 
             sourceImageX = 0;
             sourceImageY = 0;
@@ -112,6 +112,25 @@ function drawObjects() {
         h = sourceH * game.imageScale;
  
         context.drawImage(image, sourceImageX, sourceImageY, sourceW, sourceH, x, y, w, h);
+
+        if (o.view.isHorisontalTile){
+
+            // repeat the image to fill the entire width of the canvas
+            let currentX = x;
+
+            // draw to the left
+            while (currentX > 0) {
+                currentX -= w;
+                context.drawImage(image, sourceImageX, sourceImageY, sourceW, sourceH, currentX, y, w, h);
+            }
+
+            // reset currentX and draw to the right
+            currentX = x + w;
+            while (currentX < canvas.width) {
+                context.drawImage(image, sourceImageX, sourceImageY, sourceW, sourceH, currentX, y, w, h);
+                currentX += w;
+            }
+        }
     });
 }
 
@@ -163,7 +182,7 @@ function drawRectangle(x, y, w, h, color) {
 function onDraw(){
     updateState();
     drawObjects();
-    drawDebug();
+    //drawDebug();
 }
 
 function onPlayClick() {

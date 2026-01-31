@@ -3,6 +3,8 @@ class Game {
     constructor(){
         this.delta = 3;
         this.imageScale = 2;
+        this.worldHeight = 400;
+        this.worldWidth = 1000;
 
         this.sceneObjects = [];
         this.populateSceneObjects();
@@ -12,19 +14,8 @@ class Game {
         var imgC = new Image();
         imgC.src = 'images/scene/sky.png';
         var o = new StaticObject(
-            imgC,
+            new ImageView(imgC),
             0,
-            0,
-            0,
-            0
-        );
-        this.sceneObjects.push(o);
-
-        var imgC = new Image();
-        imgC.src = 'images/scene/back_cloud.png';
-        var o = new StaticObject(
-            imgC,
-            0.1,
             0,
             0,
             0
@@ -32,20 +23,25 @@ class Game {
         this.sceneObjects.push(o);
 
         imgC = new Image();
-        imgC.src = 'images/scene/front_cloud.png';
-        var o = new StaticObject(
-            imgC,
-            0.2,
-            0,
-            0,
-            0
+        imgC.src = 'images/scene/front_cloud_shortened.png';
+        const cloudParallax = 0.2;
+        var o = new MovingObject(
+            new ImageView(imgC, true),
+            cloudParallax,
+            0, // x
+            0, // y
+            0, // z
+            200 * this.imageScale / cloudParallax, // object width at that parallax plane
+            -1, // velocityX
+            this.worldHeight * this.imageScale / cloudParallax, // worldHeight size at that parallax plane
+            this.worldWidth * this.imageScale / cloudParallax // worldWidth size at that parallax plane
         );
         this.sceneObjects.push(o);
 
         imgC = new Image();
         imgC.src = 'images/scene/wheel.png';
         var o = new StaticObject(
-            imgC,
+            new ImageView(imgC),
             0.9,
             0,
             0,
@@ -57,7 +53,7 @@ class Game {
         imgC.src = 'images/scene/pier.png';
         const roadCollider = new Collider(0, 297, 1700, 100);
         var o = new StaticObject(
-            imgC,
+            new ImageView(imgC),
             1,
             0,
             0,
@@ -78,7 +74,7 @@ class Game {
             new KillableFromTheTopBehaviour(castleKilledAnimation)
         ]);
         var o = new StaticObject(
-            imgC,
+            new ImageView(imgC),
             1, // parallax
             50, // x
             257, // y
@@ -103,7 +99,7 @@ class Game {
             new SideDamageBehaviour(seagullAttackAnimation)
         ]);
         var o = new StaticObject(
-            imgC,
+            new ImageView(imgC),
             1, // parallax
             300, // x
             250, // y
@@ -117,7 +113,7 @@ class Game {
         imgC = new Image();
         imgC.src = 'images/scene/foreground_grass.png';
         var o = new StaticObject(
-            imgC,
+            new ImageView(imgC),
             1.3,
             0,
             0,
@@ -194,11 +190,11 @@ class Game {
         imgC.src = 'images/items/ball_highlighted.png';
         const ballInteractiveCollider = new Collider(800, 285, 12 * this.imageScale, 12 * this.imageScale);
         //todo: update ball image
-        const interactibleRole = new CollectableItemRole(imgC, ballInteractiveCollider, this, imgC);
+        const interactibleRole = new CollectableItemRole(new ImageView(imgC), ballInteractiveCollider, this, imgC);
         imgC = new Image();
         imgC.src = 'images/items/ball.png';
         var ball = new StaticObject(
-            imgC,
+            new ImageView(imgC),
             1,
             ballInteractiveCollider.x,
             ballInteractiveCollider.y,
