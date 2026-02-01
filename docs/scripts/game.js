@@ -90,13 +90,28 @@ class Game {
         var seagullKilledAnimation = new LoopAnimator(imgC, 20, 14, 1800, true);
         imgC = new Image();
         imgC.src = 'images/seagull/seagull_left_attack_static.png';
-        var seagullAttackAnimation = new LoopAnimator(imgC, 20, 14, 800, true);
+        var seagullLeftAttackAnimation = new LoopAnimator(imgC, 20, 14, 800, true);
+        imgC = new Image();
+        imgC.src = 'images/seagull/seagull_right_attack_static.png';
+        var seagullRightAttackAnimation = new LoopAnimator(imgC, 20, 14, 800, true);
+        imgC = new Image();
+        imgC.src = 'images/seagull/seagull_left_idle_static.png';
+        var seagullLeftIdleAnimation = new LoopAnimator(imgC, 20, 14, 800, true);
+        imgC = new Image();
+        imgC.src = 'images/seagull/seagull_right_idle_static.png';
+        var seagullRightIdleAnimation = new LoopAnimator(imgC, 20, 14, 800, true);
         imgC = new Image();
         imgC.src = 'images/seagull/seagull_left_idle_static.png';
         const seagullCollider = new Collider(300, 250, 20 * this.imageScale, 14 * this.imageScale);
         const seagullCollidableRole = new PhysicallyCollidableRole(seagullCollider, this, [
             new KillableFromTheTopBehaviour(seagullKilledAnimation),
-            new SideDamageBehaviour(seagullAttackAnimation)
+            new SideDamageBehaviour(
+                seagullRightAttackAnimation,
+                seagullLeftAttackAnimation,
+                seagullRightIdleAnimation,
+                seagullLeftIdleAnimation,
+                PlayerFaceDirectionType.Left
+            )
         ]);
         var o = new StaticObject(
             new ImageView(imgC),

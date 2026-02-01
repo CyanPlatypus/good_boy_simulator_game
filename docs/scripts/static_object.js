@@ -102,8 +102,17 @@ class KillableFromTheTopBehaviour {
 }
 
 class SideDamageBehaviour {
-    constructor(attackAnimation){
-        this.attackAnimation = attackAnimation;
+    constructor(
+        rightAttackAnimation, leftAttackAnimation,
+        rightIdleAnimation, leftIdleAnimation,
+        faceDirection
+        ){
+        this.rightAttackAnimation = rightAttackAnimation;
+        this.leftAttackAnimation = leftAttackAnimation;
+        this.rightIdleAnimation = rightIdleAnimation;
+        this.leftIdleAnimation = leftIdleAnimation;
+        this.faceDirection = faceDirection;
+        this.isAttacking = false;
     }
 
     setRole(role){
@@ -111,18 +120,36 @@ class SideDamageBehaviour {
     }
 
     processCollision(collisionInfo){
-        if(collisionInfo.crossedLeftSide || collisionInfo.crossedRightSide){
-            this.attackAnimation.startWithFirstFrame = true;
-            this.role.actor.view = this.attackAnimation;
+        if(collisionInfo.crossedRightSide){
+            this.faceDirection = PlayerFaceDirectionType.Right;
+            this.isAttacking = true;
+            this.rightAttackAnimation.startWithFirstFrame = true;
+            this.role.actor.view = this.rightAttackAnimation;
+            return PlayerCollisionResultType.Damaged;
+        }
+        else if(collisionInfo.crossedLeftSide){
+            this.faceDirection = PlayerFaceDirectionType.Left;
+            this.isAttacking = true;
+            this.leftAttackAnimation.startWithFirstFrame = true;
+            this.role.actor.view = this.leftAttackAnimation;
             return PlayerCollisionResultType.Damaged;
         }
     }
 
     act(){
-        if (this.role.actor.view == this.attackAnimation
-            && this.attackAnimation.isFinishedAnimation){
-            this.role.actor.idleView.startWithFirstFrame = true;
-            this.role.actor.view = this.role.actor.idleView;
+        if (!this.isAttacking){
+            return;
+        }
+        let attackAnimation = this.faceDirection == PlayerFaceDirectionType.Right
+            ? this.rightAttackAnimation
+            : this.leftAttackAnimation;
+        let idleAnimation = this.faceDirection == PlayerFaceDirectionType.Right
+            ? this.rightIdleAnimation
+            : this.leftIdleAnimation;
+        if(attackAnimation.isFinishedAnimation){
+            this.isAttacking = false;
+            idleAnimation.startWithFirstFrame = true;
+            this.role.actor.view = idleAnimation;
         }
     }
 }
