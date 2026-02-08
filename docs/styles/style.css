@@ -22,3 +22,22 @@ body {
     background: white;
     /* box-shadow: 0 4px 8px 0 rgba(0,0,0,0.2); */
 }
+
+#playButton {
+    position: absolute;
+    left: 50%;
+    top: 50%;
+
+    border: none;
+    background: none;
+    cursor: pointer;
+
+    /* right-pointing triangle */
+    border-left: 26px solid rgb(128, 128, 128);
+    border-top: 16px solid transparent;
+    border-bottom: 16px solid transparent;
+}
+
+#playButton:hover {
+    border-left-color: rgb(45, 45, 45);
+}

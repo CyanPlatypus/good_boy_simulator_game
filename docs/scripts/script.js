@@ -7,6 +7,9 @@ var keyboardController;
 var camera;
 
 var game;
+var intervalId;
+
+var playButton;
 
 function onKeyChange(event, keyPressed){
 
@@ -59,8 +62,8 @@ function onLoad() {
     const worldCollider = new Collider(0, 0, 2000, canvas.height);
     camera = new Camera(100, 370, canvas.width, canvas.height, worldCollider);
 
-    //onPlayClick();
-    canvas.addEventListener('click', onPlayClick);
+    playButton = document.getElementById('playButton');
+    playButton.addEventListener('click', onPlayClick);
 }
 
 function updateState() {
@@ -188,5 +191,10 @@ function onDraw(){
 function onPlayClick() {
     // event.currentTarget.classList.toggle('is-flipped');
     //let requestId = requestAnimationFrame(callback) // https://javascript.info/js-animation
-    intervalId = setInterval(onDraw, 15);
+
+    playButton.style.display = 'none';
+
+    if (intervalId === undefined) {
+        intervalId = setInterval(onDraw, 15);
+    }
 }
