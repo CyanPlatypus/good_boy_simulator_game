@@ -51,7 +51,7 @@ class Game {
 
         imgC = new Image();
         imgC.src = 'images/scene/pier.png';
-        const roadCollider = new Collider(0, 297, 1700, 100);
+        const roadCollider = new Collider(0, 297, 1650, 100);
         var o = new StaticObject(
             new ImageView(imgC),
             1,
@@ -63,6 +63,28 @@ class Game {
             ])
         );
         this.sceneObjects.push(o);
+
+        const invisibleWallLeftCollider = new Collider(-30, 0, 30, this.worldHeight * 2);
+        var invisibleWallLeft = new StaticObject(
+            null,
+            1,
+            0, 0, 1, // x, y, z
+            new Map([
+                [RoleType.Collidable, new PhysicallyCollidableRole(invisibleWallLeftCollider, this)]
+            ])
+        );
+        this.sceneObjects.push(invisibleWallLeft);
+
+        const invisibleWallRightCollider = new Collider(roadCollider.width, 0, 30, this.worldHeight * 2);
+        var invisibleWallRight = new StaticObject(
+            null,
+            1,
+            0, 0, 1, // x, y, z
+            new Map([
+                [RoleType.Collidable, new PhysicallyCollidableRole(invisibleWallRightCollider, this)]
+            ])
+        );
+        this.sceneObjects.push(invisibleWallRight);
 
         imgC = new Image();
         imgC.src = 'images/sand_castle/send_castle_two_towers_dead.png';

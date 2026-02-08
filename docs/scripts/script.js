@@ -101,7 +101,7 @@ function drawObjects() {
             sourceW = animator.width;
             sourceH = animator.height;
         }
-        else{
+        else if(o.view instanceof ImageView){
             image = o.view.image;
 
             sourceImageX = 0;
@@ -109,6 +109,9 @@ function drawObjects() {
 
             sourceW = image.width;
             sourceH = image.height;
+        }
+        else{
+            return;
         }
 
         w = sourceW * game.imageScale;
